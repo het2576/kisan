@@ -102,33 +102,95 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        .clay-morphism {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            box-shadow: 
-                35px 35px 68px 0px rgba(145, 192, 255, 0.5),
-                inset -8px -8px 16px 0px rgba(145, 192, 255, 0.6),
-                inset 0px 11px 28px 0px rgb(255, 255, 255);
-            backdrop-filter: blur(5px);
+        .glass-container {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+        
+        .glass-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #EBF5FB;
+            background: linear-gradient(120deg, #f6f9fc 0%, #edf2f7 100%);
+            min-height: 100vh;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+            border-color: #63b3ed;
+            outline: none;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+            transform: translateY(-2px);
+        }
+
+        .recommendation-section {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .recommendation-section h3 {
+            color: #2d3748;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .recommendation-section p {
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .recommendation-section ul {
+            margin-left: 1.5rem;
+            list-style-type: disc;
+            color: #4a5568;
+        }
+
+        .page-title {
+            background: linear-gradient(135deg, #1a5f7a 0%, #2d3748 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="clay-morphism p-6 md:p-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="glass-container p-8 md:p-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-center page-title mb-12">
                 <i class="bi bi-flower1 text-green-600"></i> AI Farm Assistant
             </h1>
 
-            <form action="ai_assistant.php" method="POST" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Soil Type</label>
-                        <select name="soilType" class="w-full p-3 border rounded-lg bg-white" required>
+            <form action="ai_assistant.php" method="POST" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="block text-gray-700 font-medium">Soil Type</label>
+                        <select name="soilType" class="form-input w-full" required>
                             <option value="">Select Soil Type</option>
                             <option value="clay">Clay Soil</option>
                             <option value="sandy">Sandy Soil</option>
@@ -137,9 +199,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <option value="peaty">Peaty Soil</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Season</label>
-                        <select name="season" class="w-full p-3 border rounded-lg bg-white" required>
+                    <div class="space-y-2">
+                        <label class="block text-gray-700 font-medium">Season</label>
+                        <select name="season" class="form-input w-full" required>
                             <option value="">Select Season</option>
                             <option value="summer">Summer</option>
                             <option value="winter">Winter</option>
@@ -147,13 +209,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <option value="spring">Spring</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Land Area (in acres)</label>
-                        <input type="number" name="landArea" min="0.1" step="0.1" class="w-full p-3 border rounded-lg bg-white" required>
+                    <div class="space-y-2">
+                        <label class="block text-gray-700 font-medium">Land Area (in acres)</label>
+                        <input type="number" name="landArea" min="0.1" step="0.1" class="form-input w-full" required>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Preferred Crop Type</label>
-                        <select name="cropType" class="w-full p-3 border rounded-lg bg-white" required>
+                    <div class="space-y-2">
+                        <label class="block text-gray-700 font-medium">Preferred Crop Type</label>
+                        <select name="cropType" class="form-input w-full" required>
                             <option value="">Select Crop Type</option>
                             <option value="cereals">Cereals</option>
                             <option value="pulses">Pulses</option>
@@ -164,17 +226,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-3 px-6 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                <button type="submit" class="submit-button w-full py-4 px-6 text-white rounded-xl font-medium text-lg shadow-lg">
                     Get Recommendations
                 </button>
             </form>
 
             <?php if (!empty($aiResponse)): ?>
-                <div id="recommendations" class="mt-8 clay-morphism p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                        <i class="bi bi-lightbulb text-yellow-500"></i> Recommendations
+                <div id="recommendations" class="mt-12 recommendation-section">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="bi bi-lightbulb text-yellow-400"></i> Your Personalized Farming Recommendations
                     </h2>
-                    <div id="recommendationText" class="text-gray-700 space-y-4">
+                    <div id="recommendationText">
                         <?php echo $aiResponse; ?>
                     </div>
                 </div>
