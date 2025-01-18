@@ -32,8 +32,13 @@ if (isset($_GET['code'])) {
         $result = $stmt->get_result();
         
         if ($result->num_rows > 0) {
-            echo "<script>alert('Account already exists! Please login.');</script>";
-            header("Location: login.php");
+            // User exists - log them in directly
+            $user = $result->fetch_assoc();
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['name'] = $user['name'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['region'] = $user['region'];
+            header("Location: dashboard.php");
             exit();
         } else {
             // Create new user
@@ -43,6 +48,7 @@ if (isset($_GET['code'])) {
             $stmt->execute();
             $_SESSION['user_id'] = $conn->insert_id;
             $_SESSION['name'] = $google_account_info->name;
+            $_SESSION['email'] = $google_account_info->email;
             header("Location: dashboard.php");
             exit();
         }
