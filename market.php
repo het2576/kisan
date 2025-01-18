@@ -6,20 +6,23 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Function to get commodity prices from Data.gov.in API
-function getCommodityPrices($apiKey, $commodity = 'wheat') {
+function getCommodityPrices($apiKey, $commodity = '') {
     $apiUrl = 'https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070';
     $apiUrl .= '?api-key=' . $apiKey;
     $apiUrl .= '&format=json';
-    $apiUrl .= '&limit=30'; // Reduced limit to 30 records
+    $apiUrl .= '&limit=100'; // Increased limit to get more records
     if ($commodity) {
-        $apiUrl .= '&filters[commodity]=' . urlencode($commodity);
-        $apiUrl .= '&filters[state]=Gujarat'; // Filter for Gujarat state only
+        // Allow partial matching of commodity names
+        $apiUrl .= '&filters[commodity]=*' . urlencode($commodity) . '*';
     }
-
+    // Add Gujarat filter to get data only from Gujarat state
+    $apiUrl .= '&filters[state]=Gujarat';
+    
     // Initialize cURL
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $apiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Added to handle SSL issues
     
     $response = curl_exec($ch);
     
@@ -52,14 +55,13 @@ function getCommodityPrices($apiKey, $commodity = 'wheat') {
             // Limit to 30 records
             if ($count >= 30) break;
             
-            if (isset($record['commodity']) && isset($record['modal_price']) && 
-                isset($record['state']) && strtolower($record['state']) === 'gujarat') {
+            if (isset($record['commodity']) && isset($record['modal_price'])) {
                 // Price is per quintal (100 kg), convert to per kg
                 $price_per_quintal = $record['modal_price'];
                 $price_per_kg = $price_per_quintal / 100;
                 
                 $formattedData[] = [
-                    "market" => isset($record['market']) ? $record['market'] : "Gujarat Market",
+                    "market" => isset($record['market']) ? $record['market'] : "Market",
                     "commodity" => ucfirst($record['commodity']),
                     "price_inr" => "₹" . number_format($price_per_kg, 2),
                     "price_5kg" => "₹" . number_format($price_per_kg * 5, 2),
@@ -73,14 +75,14 @@ function getCommodityPrices($apiKey, $commodity = 'wheat') {
         return ["error" => "Invalid data format from API"];
     }
 
-    return empty($formattedData) ? ["error" => "No data found for this commodity in Gujarat"] : $formattedData;
+    return empty($formattedData) ? ["error" => "No data found for the specified commodity"] : $formattedData;
 }
 
 // API Key for Data.gov.in
 $apiKey = '579b464db66ec23bdd000001d5d7b38558604fd467d25a11b06fc1d9';
 
 // Get commodity data
-$searchCommodity = isset($_GET['search']) ? strtolower(trim($_GET['search'])) : 'wheat';
+$searchCommodity = isset($_GET['search']) && !empty($_GET['search']) ? strtolower(trim($_GET['search'])) : '';
 $cropPrices = getCommodityPrices($apiKey, $searchCommodity);
 ?>
 <!DOCTYPE html>
@@ -213,12 +215,12 @@ $cropPrices = getCommodityPrices($apiKey, $searchCommodity);
     <div class="container py-5">
         <div class="custom-container">
             <div class="title-section">
-                <h1><i class="fas fa-chart-line"></i>  Market Insights</h1>
+                <h1><i class="fas fa-chart-line"></i> Market Insights</h1
                 <p class="subtitle">Real-time commodity prices from Gujarat Markets</p>
             </div>
 
             <form class="search-box" method="GET">
-                <input type="text" name="search" placeholder="Search for a commodity (e.g., wheat, rice, potato)" 
+                <input type="text" name="search" placeholder="Search for a specific commodity in Gujarat markets" 
                        value="<?php echo htmlspecialchars($searchCommodity); ?>" 
                        class="form-control">
                 <button type="submit" class="search-btn">Search</button>
@@ -271,7 +273,7 @@ $cropPrices = getCommodityPrices($apiKey, $searchCommodity);
                 <?php endif; ?>
             <?php else: ?>
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No data available for this commodity in Gujarat. Please try another commodity like wheat, rice, or potato.
+                    <i class="fas fa-info-circle"></i> No data available for this commodity. Please try another commodity like wheat, rice, or potato.
                 </div>
             <?php endif; ?>
         </div>
