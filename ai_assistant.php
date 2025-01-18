@@ -1,63 +1,93 @@
 <?php
 session_start();
+
+// Redirect to login if the user is not authenticated
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Function to call Google Cloud Natural Language API
-function getGoogleNLResponse($text) {
-    $apiKey = "AIzaSyD-CtXW7S_VtRycQspcjNufxyGBPeCqOc8"; // Replace with your Google Cloud API key
-    $url = "https://language.googleapis.com/v1/documents:analyzeEntities?key=$apiKey";
+// Function to call the WideCanvas AI API
+function callWideCanvasAPI($soilType, $season, $landArea, $cropType) {
+    $apiUrl = "https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/ai"; // WideCanvas API endpoint
+    $apiToken = "efcNrkdR7OVnAwFzqITfdECW7WM2"; // WideCanvas API token
 
+    // Prepare the API payload
     $data = [
-        "document" => [
-            "type" => "PLAIN_TEXT",
-            "content" => $text,
-        ],
-        "encodingType" => "UTF8",
+        "messages" => [
+            [
+                "role" => "user",
+                "content" => [
+                    [
+                        "type" => "text",
+                        "text" => "Please provide detailed farming recommendations for the following conditions:
+                            Soil Type: $soilType
+                            Season: $season
+                            Land Area: $landArea acres
+                            Preferred Crop Type: $cropType
+                            
+                            Include information about:
+                            1. Recommended crops
+                            2. Soil preparation
+                            3. Irrigation requirements
+                            4. Fertilizer recommendations
+                            5. Pest management
+                            6. Expected yield
+                            7. Best farming practices"
+                    ]
+                ]
+            ]
+        ]
     ];
 
-    $options = [
-        "http" => [
-            "header" => "Content-Type: application/json\r\n",
-            "method" => "POST",
-            "content" => json_encode($data),
-        ],
+    // Setup the request headers
+    $headers = [
+        "Authorization: Bearer $apiToken",
+        "Content-Type: application/json",
     ];
 
-    $context = stream_context_create($options);
-    $response = file_get_contents($url, false, $context);
+    // Initialize CURL
+    $ch = curl_init($apiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-    if ($response === FALSE) {
-        return "Error connecting to the AI service.";
+    // Execute the request
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    // Handle errors
+    if ($response === false || $httpCode !== 200) {
+        $errorMessage = curl_error($ch) ?: "HTTP $httpCode: Unable to fetch recommendations.";
+        curl_close($ch);
+        return ["error" => $errorMessage];
     }
 
-    $responseData = json_decode($response, true);
-    return $responseData;
+    curl_close($ch);
+
+    // Decode and return the response
+    return json_decode($response, true);
 }
 
 // Handle form submission
 $aiResponse = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $cropType = $_POST['crop_type'];
-    $soilType = $_POST['soil_type'];
-    $landArea = $_POST['land_area'];
+    $soilType = $_POST['soilType'];
     $season = $_POST['season'];
+    $landArea = $_POST['landArea'];
+    $cropType = $_POST['cropType'];
 
-    // Prepare input for Google Cloud Natural Language API
-    $input = "Crop Type: $cropType, Soil Type: $soilType, Land Area: $landArea, Season: $season. Suggest fertilizers, pesticides, and plant care tips.";
-    $nlResponse = getGoogleNLResponse($input);
+    // Call the WideCanvas API
+    $apiResult = callWideCanvasAPI($soilType, $season, $landArea, $cropType);
 
-    // Process the response
-    if (isset($nlResponse['entities'])) {
-        $entities = $nlResponse['entities'];
-        $aiResponse = "Based on your input, here are the key entities detected:<br>";
-        foreach ($entities as $entity) {
-            $aiResponse .= "- " . $entity['name'] . " (Type: " . $entity['type'] . ")<br>";
-        }
+    // Process the API response
+    if (isset($apiResult['message'])) {
+        $aiResponse = nl2br(htmlspecialchars($apiResult['message']));
+    } elseif (isset($apiResult['error'])) {
+        $aiResponse = "Error: " . htmlspecialchars($apiResult['error']);
     } else {
-        $aiResponse = "No entities detected. Please provide more details.";
+        $aiResponse = "No recommendations available. Please try again.";
     }
 }
 ?>
@@ -66,76 +96,89 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Farming Assistant - Kisan.ai</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>AI Farm Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        .clay-morphism {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            box-shadow: 
+                35px 35px 68px 0px rgba(145, 192, 255, 0.5),
+                inset -8px -8px 16px 0px rgba(145, 192, 255, 0.6),
+                inset 0px 11px 28px 0px rgb(255, 255, 255);
+            backdrop-filter: blur(5px);
         }
-
-        .fade-in {
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         body {
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
-            color: #fff;
             font-family: 'Poppins', sans-serif;
-        }
-
-        .card {
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: scale(1.05);
+            background-color: #EBF5FB;
         }
     </style>
 </head>
-<body>
-    <div class="container py-5">
-        <h1 class="text-center mb-4 fade-in">AI Farming Assistant</h1>
-        <div class="row justify-content-center fade-in">
-            <div class="col-md-8 glassmorphism p-4">
-                <form action="ai_assistant.php" method="POST">
-                    <div class="mb-3">
-                        <label for="crop_type" class="form-label">Crop Type</label>
-                        <input type="text" name="crop_type" class="form-control" placeholder="e.g., Wheat, Rice, Corn" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="soil_type" class="form-label">Soil Type</label>
-                        <input type="text" name="soil_type" class="form-control" placeholder="e.g., Loamy, Sandy, Clay" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="land_area" class="form-label">Land Area (in acres)</label>
-                        <input type="number" name="land_area" class="form-control" placeholder="e.g., 5" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="season" class="form-label">Season</label>
-                        <input type="text" name="season" class="form-control" placeholder="e.g., Winter, Summer, Monsoon" required>
-                    </div>
-                    <button type="submit" class="btn btn-light w-100">Get Recommendations</button>
-                </form>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="clay-morphism p-6 md:p-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
+                <i class="bi bi-flower1 text-green-600"></i> AI Farm Assistant
+            </h1>
 
-                <?php if (!empty($aiResponse)): ?>
-                    <div class="mt-4">
-                        <h3>AI Recommendations</h3>
-                        <div class="card glassmorphism p-3">
-                            <p><?php echo nl2br($aiResponse); ?></p>
-                        </div>
+            <form action="ai_assistant.php" method="POST" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Soil Type</label>
+                        <select name="soilType" class="w-full p-3 border rounded-lg bg-white" required>
+                            <option value="">Select Soil Type</option>
+                            <option value="clay">Clay Soil</option>
+                            <option value="sandy">Sandy Soil</option>
+                            <option value="loamy">Loamy Soil</option>
+                            <option value="silty">Silty Soil</option>
+                            <option value="peaty">Peaty Soil</option>
+                        </select>
                     </div>
-                <?php endif; ?>
-            </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Season</label>
+                        <select name="season" class="w-full p-3 border rounded-lg bg-white" required>
+                            <option value="">Select Season</option>
+                            <option value="summer">Summer</option>
+                            <option value="winter">Winter</option>
+                            <option value="monsoon">Monsoon</option>
+                            <option value="spring">Spring</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Land Area (in acres)</label>
+                        <input type="number" name="landArea" min="0.1" step="0.1" class="w-full p-3 border rounded-lg bg-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Preferred Crop Type</label>
+                        <select name="cropType" class="w-full p-3 border rounded-lg bg-white" required>
+                            <option value="">Select Crop Type</option>
+                            <option value="cereals">Cereals</option>
+                            <option value="pulses">Pulses</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="commercial">Commercial Crops</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-6 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                    Get Recommendations
+                </button>
+            </form>
+
+            <?php if (!empty($aiResponse)): ?>
+                <div id="recommendations" class="mt-8 clay-morphism p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="bi bi-lightbulb text-yellow-500"></i> Recommendations
+                    </h2>
+                    <div id="recommendationText" class="text-gray-700 space-y-4">
+                        <?php echo $aiResponse; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </body>
