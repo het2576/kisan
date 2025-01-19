@@ -6,8 +6,17 @@ include 'db_connect.php';
 $clientID = '1037427370758-vu656ogqoh3jckejva39vn6ljuk5pimk.apps.googleusercontent.com';
 $clientSecret = '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';
 
-$currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-$redirectUri = $currentUrl;
+// Define allowed redirect URIs - must exactly match those configured in Google Console
+$allowedRedirectUris = [
+    'http://localhost:8888/kisan/register.php',
+    'http://localhost/kisan/register.php'
+];
+
+// Get current URL without any query parameters
+$currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . strtok($_SERVER["REQUEST_URI"], '?');
+
+// Use current URL if it's in allowed list, otherwise use first allowed URI
+$redirectUri = in_array($currentUrl, $allowedRedirectUris) ? $currentUrl : $allowedRedirectUris[0];
 
 // Initialize Google Client
 require_once __DIR__ . '/vendor/autoload.php';
@@ -20,40 +29,46 @@ $client->addScope("profile");
 
 // Handle Google Registration
 if (isset($_GET['code'])) {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-    if (!isset($token['error'])) {
-        $client->setAccessToken($token['access_token']);
-        $google_oauth = new Google\Service\Oauth2($client);
-        $google_account_info = $google_oauth->userinfo->get();
-        
-        // Check if user exists
-        $sql = "SELECT * FROM Users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $google_account_info->email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            // User exists - log them in directly
-            $user = $result->fetch_assoc();
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['region'] = $user['region'];
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            // Create new user
-            $sql = "INSERT INTO Users (name, email) VALUES (?, ?)";
+    try {
+        $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+        if (!isset($token['error'])) {
+            $client->setAccessToken($token['access_token']);
+            $google_oauth = new Google\Service\Oauth2($client);
+            $google_account_info = $google_oauth->userinfo->get();
+            
+            // Check if user exists
+            $sql = "SELECT * FROM Users WHERE email = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ss", $google_account_info->name, $google_account_info->email);
+            $stmt->bind_param("s", $google_account_info->email);
             $stmt->execute();
-            $_SESSION['user_id'] = $conn->insert_id;
-            $_SESSION['name'] = $google_account_info->name;
-            $_SESSION['email'] = $google_account_info->email;
-            header("Location: dashboard.php");
-            exit();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                // User exists - log them in directly
+                $user = $result->fetch_assoc();
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['region'] = $user['region'];
+                header("Location: dashboard.php");
+                exit();
+            } else {
+                // Create new user
+                $sql = "INSERT INTO Users (name, email) VALUES (?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ss", $google_account_info->name, $google_account_info->email);
+                $stmt->execute();
+                $_SESSION['user_id'] = $conn->insert_id;
+                $_SESSION['name'] = $google_account_info->name;
+                $_SESSION['email'] = $google_account_info->email;
+                header("Location: dashboard.php");
+                exit();
+            }
+        } else {
+            echo "<script>alert('Google authentication error: " . $token['error'] . "');</script>";
         }
+    } catch (Exception $e) {
+        echo "<script>alert('Authentication error: " . $e->getMessage() . "');</script>";
     }
 }
 
