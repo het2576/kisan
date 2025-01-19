@@ -6,6 +6,58 @@ if (!isset($_SESSION['user_id'])) {
 }
 include 'db_connect.php';
 
+// Get language from session that was set in dashboard
+$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : 'en';
+
+// Translations array
+$translations = [
+    'en' => [
+        'weather_forecast' => 'Weather Forecast',
+        'search_location' => 'Search location...',
+        'search' => 'Search',
+        'weather_for' => 'Weather Forecast for',
+        'current_conditions' => 'Current Weather Conditions:',
+        'temperature' => 'Temperature',
+        'humidity' => 'Humidity',
+        'conditions' => 'Conditions',
+        'wind_speed' => 'Wind Speed',
+        'date' => 'Date',
+        'rainfall' => 'Rainfall',
+        'description' => 'Description',
+        'temp_rainfall_forecast' => 'Temperature and Rainfall Forecast'
+    ],
+    'hi' => [
+        'weather_forecast' => 'मौसम का पूर्वानुमान',
+        'search_location' => 'स्थान खोजें...',
+        'search' => 'खोज',
+        'weather_for' => 'के लिए मौसम का पूर्वानुमान',
+        'current_conditions' => 'वर्तमान मौसम की स्थिति:',
+        'temperature' => 'तापमान',
+        'humidity' => 'आर्द्रता',
+        'conditions' => 'स्थिति',
+        'wind_speed' => 'हवा की गति',
+        'date' => 'तारीख',
+        'rainfall' => 'वर्षा',
+        'description' => 'विवरण',
+        'temp_rainfall_forecast' => 'तापमान और वर्षा का पूर्वानुमान'
+    ],
+    'gu' => [
+        'weather_forecast' => 'હવામાન આગાહી',
+        'search_location' => 'સ્થાન શોધો...',
+        'search' => 'શોધ',
+        'weather_for' => 'માટે હવામાન આગાહી',
+        'current_conditions' => 'વર્તમાન હવામાન સ્થિતિ:',
+        'temperature' => 'તાપમાન',
+        'humidity' => 'ભેજ',
+        'conditions' => 'સ્થિતિ',
+        'wind_speed' => 'પવનની ગતિ',
+        'date' => 'તારીખ',
+        'rainfall' => 'વરસાદ',
+        'description' => 'વર્ણન',
+        'temp_rainfall_forecast' => 'તાપમાન અને વરસાદની આગાહી'
+    ]
+];
+
 // OpenWeatherMap API configuration
 $apiKey = "0b9c5f5d4485861396ea55abc7a91f3e"; // Replace with your actual OpenWeatherMap API key
 $region = isset($_GET['search']) ? $_GET['search'] : ($_SESSION['region'] ?? 'Delhi');
@@ -55,11 +107,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Forecast - Kisan.ai</title>
+    <title><?php echo $translations[$lang]['weather_forecast']; ?> - Kisan.ai</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -139,31 +191,31 @@ $result = $stmt->get_result();
 </head>
 <body>
     <div class="container py-5">
-        <h1 class="text-center mb-4">Weather Forecast</h1>
+        <h1 class="text-center mb-4"><?php echo $translations[$lang]['weather_forecast']; ?></h1>
         
         <!-- Search Form -->
         <div class="row mb-4">
             <div class="col-md-6 mx-auto">
                 <form class="d-flex" method="GET">
-                    <input type="text" name="search" class="form-control me-2" placeholder="Search location..." value="<?php echo htmlspecialchars($region); ?>">
-                    <button type="submit" class="btn btn-primary">Search</button>
+                    <input type="text" name="search" class="form-control me-2" placeholder="<?php echo $translations[$lang]['search_location']; ?>" value="<?php echo htmlspecialchars($region); ?>">
+                    <button type="submit" class="btn btn-primary"><?php echo $translations[$lang]['search']; ?></button>
                 </form>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-12 glassmorphism p-4 fade-in">
-                <h3>Weather Forecast for <?php echo htmlspecialchars($region); ?></h3>
+                <h3><?php echo $translations[$lang]['weather_for']; ?> <?php echo htmlspecialchars($region); ?></h3>
                 
                 <!-- Current Weather Summary -->
                 <?php if (!empty($processedData)): 
                     $current = reset($processedData); ?>
                 <div class="alert alert-info mb-4">
-                    <h4 class="mb-3">Current Weather Conditions:</h4>
-                    <p class="mb-2"><strong>Temperature:</strong> <?php echo round($current['temperature']); ?>°C</p>
-                    <p class="mb-2"><strong>Humidity:</strong> <?php echo $current['humidity']; ?>%</p>
-                    <p class="mb-2"><strong>Conditions:</strong> <?php echo $current['description']; ?></p>
-                    <p class="mb-0"><strong>Wind Speed:</strong> <?php echo $current['wind_speed']; ?> m/s</p>
+                    <h4 class="mb-3"><?php echo $translations[$lang]['current_conditions']; ?></h4>
+                    <p class="mb-2"><strong><?php echo $translations[$lang]['temperature']; ?>:</strong> <?php echo round($current['temperature']); ?>°C</p>
+                    <p class="mb-2"><strong><?php echo $translations[$lang]['humidity']; ?>:</strong> <?php echo $current['humidity']; ?>%</p>
+                    <p class="mb-2"><strong><?php echo $translations[$lang]['conditions']; ?>:</strong> <?php echo $current['description']; ?></p>
+                    <p class="mb-0"><strong><?php echo $translations[$lang]['wind_speed']; ?>:</strong> <?php echo $current['wind_speed']; ?> m/s</p>
                 </div>
                 <?php endif; ?>
 
@@ -174,11 +226,11 @@ $result = $stmt->get_result();
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Temperature (°C)</th>
-                            <th>Rainfall (mm)</th>
-                            <th>Description</th>
-                            <th>Wind Speed (m/s)</th>
+                            <th><?php echo $translations[$lang]['date']; ?></th>
+                            <th><?php echo $translations[$lang]['temperature']; ?> (°C)</th>
+                            <th><?php echo $translations[$lang]['rainfall']; ?> (mm)</th>
+                            <th><?php echo $translations[$lang]['description']; ?></th>
+                            <th><?php echo $translations[$lang]['wind_speed']; ?> (m/s)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -205,7 +257,7 @@ $result = $stmt->get_result();
             data: {
                 labels: <?php echo json_encode(array_column($processedData, 'date')); ?>,
                 datasets: [{
-                    label: 'Temperature (°C)',
+                    label: '<?php echo $translations[$lang]['temperature']; ?> (°C)',
                     data: <?php echo json_encode(array_column($processedData, 'temperature')); ?>,
                     borderColor: '#303f9f',
                     backgroundColor: 'rgba(48, 63, 159, 0.1)',
@@ -215,7 +267,7 @@ $result = $stmt->get_result();
                     pointRadius: 4,
                     pointHoverRadius: 6
                 }, {
-                    label: 'Rainfall (mm)',
+                    label: '<?php echo $translations[$lang]['rainfall']; ?> (mm)',
                     data: <?php echo json_encode(array_column($processedData, 'rainfall')); ?>,
                     borderColor: '#1565c0',
                     backgroundColor: 'rgba(21, 101, 192, 0.1)',
@@ -240,7 +292,7 @@ $result = $stmt->get_result();
                     },
                     title: {
                         display: true,
-                        text: 'Temperature and Rainfall Forecast',
+                        text: '<?php echo $translations[$lang]['temp_rainfall_forecast']; ?>',
                         font: {
                             family: 'Poppins',
                             size: 16,
