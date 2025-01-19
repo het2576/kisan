@@ -5,7 +5,19 @@ include 'db_connect.php';
 // Google Client Configuration
 $clientID = '1037427370758-vu656ogqoh3jckejva39vn6ljuk5pimk.apps.googleusercontent.com';
 $clientSecret = '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';
-$redirectUri = 'http://localhost:8888/kisan/login.php'; // Changed to production URL
+
+// Get current URL
+$currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
+// Define allowed redirect URIs
+$allowedRedirectUris = [
+    'http://localhost:8888/kisan/login.php',
+    'http://localhost/kisan/login.php'
+];
+
+// Use current URL if it's in allowed list, otherwise use first allowed URI
+$redirectUri = in_array($currentUrl, $allowedRedirectUris) ? $currentUrl : $allowedRedirectUris[0];
+
 
 // Initialize Google Client
 require_once __DIR__ . '/vendor/autoload.php';
