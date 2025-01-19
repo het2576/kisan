@@ -5,7 +5,9 @@ include 'db_connect.php';
 // Google Client Configuration
 $clientID = '1037427370758-vu656ogqoh3jckejva39vn6ljuk5pimk.apps.googleusercontent.com';
 $clientSecret = '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';
-$redirectUri = 'http://localhost:8888/kisan/register.php';
+
+$currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$redirectUri = $currentUrl;
 
 // Initialize Google Client
 require_once __DIR__ . '/vendor/autoload.php';
