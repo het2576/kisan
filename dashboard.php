@@ -176,7 +176,7 @@ $translations = [
             width: 280px;
             background: #1a1c23;
             color: #ffffff;
-            padding: 1.5rem;
+            padding: 1rem;
             transition: all 0.3s ease;
             z-index: 1000;
             box-shadow: 4px 0 10px rgba(0,0,0,0.1);
@@ -187,40 +187,44 @@ $translations = [
         }
 
         .sidebar-logo {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .sidebar-logo h3 {
             color: #ffffff;
             font-weight: 600;
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .nav-links {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.3rem;
             flex: 1;
-            padding-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            overflow-y: auto;
         }
 
         .nav-link {
             color: rgba(255,255,255,0.8);
-            padding: 0.8rem 1rem;
+            padding: 0.6rem 0.8rem;
             margin: 0.1rem 0;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             text-decoration: none;
             font-weight: 500;
             white-space: nowrap;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         .nav-link:hover {
@@ -235,14 +239,14 @@ $translations = [
         }
 
         .nav-link i {
-            margin-right: 10px;
-            width: 18px;
-            font-size: 1rem;
+            margin-right: 8px;
+            width: 16px;
+            font-size: 0.9rem;
         }
 
         .logout-container {
             margin-top: auto;
-            padding-top: 0.8rem;
+            padding-top: 0.5rem;
             border-top: 1px solid rgba(255,255,255,0.1);
             flex-shrink: 0;
         }
@@ -252,7 +256,8 @@ $translations = [
             color: #ff3b30;
             width: 100%;
             margin: 0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            padding: 0.6rem 0.8rem;
         }
 
         .logout-link:hover {
@@ -277,6 +282,12 @@ $translations = [
             font-size: 0.9rem;
         }
 
+        .hamburger-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
         .user-profile {
             display: flex;
             align-items: center;
@@ -284,8 +295,8 @@ $translations = [
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             background: #3182ce;
             border-radius: 50%;
             display: flex;
@@ -293,6 +304,7 @@ $translations = [
             justify-content: center;
             color: white;
             font-weight: 600;
+            font-size: 0.8rem;
         }
 
         /* Main Content Area */
@@ -447,10 +459,15 @@ $translations = [
         }
 
         @media (max-width: 768px) {
+            .hamburger-menu {
+                display: block;
+            }
+
             .sidebar {
                 transform: translateX(-100%);
                 width: 100%;
-                max-width: 300px;
+                max-width: 250px;
+                padding: 0.8rem;
             }
 
             .sidebar.active {
@@ -464,10 +481,28 @@ $translations = [
             .main-content {
                 margin-left: 0;
             }
+
+            .mobile-menu-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+
+            .mobile-menu-overlay.active {
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay"></div>
+
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-logo">
@@ -480,7 +515,7 @@ $translations = [
             <a href="weather.php" class="nav-link"><i class="fas fa-cloud-sun"></i><?php echo $translations[$lang]['weather']; ?></a>
             <a href="tools.php" class="nav-link"><i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?></a>
             <a href="ai_assistant.php" class="nav-link"><i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?></a>
-            <a href="crop_profit_calc.php" class="nav-link"><i class="fas fa-calculator"></i><?php echo $translations[$lang]['profit_calc']; ?></a>
+            <a href="crop_profit_calc.php" class="nav-link"><i class="fas fa-calculator"></i><?php echo isset($translations[$lang]['profit_calc']) ? $translations[$lang]['profit_calc'] : 'Profit Calculator'; ?></a>
             <a href="ar_visualization.php" class="nav-link"><i class="fas fa-vr-cardboard"></i><?php echo $translations[$lang]['ar_viz']; ?></a>
             <a href="agri_news.php" class="nav-link"><i class="fas fa-newspaper"></i><?php echo $translations[$lang]['news']; ?></a>
         </div>
@@ -491,6 +526,9 @@ $translations = [
 
     <!-- Header -->
     <header class="main-header">
+        <div class="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </div>
         <div class="lang-selector">
             <a href="?lang=en" class="btn btn-outline-primary btn-sm">English</a>
             <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
@@ -603,5 +641,18 @@ $translations = [
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Hamburger Menu Script -->
+    <script>
+        document.querySelector('.hamburger-menu').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.mobile-menu-overlay').classList.toggle('active');
+        });
+
+        document.querySelector('.mobile-menu-overlay').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.remove('active');
+            document.querySelector('.mobile-menu-overlay').classList.remove('active');
+        });
+    </script>
 </body>
 </html>
