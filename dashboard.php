@@ -477,7 +477,7 @@ $translations = [
             <a href="weather.php" class="nav-link"><i class="fas fa-cloud-sun"></i><?php echo $translations[$lang]['weather']; ?></a>
             <a href="tools.php" class="nav-link"><i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?></a>
             <a href="ai_assistant.php" class="nav-link"><i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?></a>
-            <a href="profit_calculator.php" class="nav-link"><i class="fas fa-calculator"></i><?php echo $translations[$lang]['profit_calc']; ?></a>
+            <a href="crop_profit_calc.php" class="nav-link"><i class="fas fa-calculator"></i><?php echo $translations[$lang]['profit_calc']; ?></a>
             <a href="ar_visualization.php" class="nav-link"><i class="fas fa-vr-cardboard"></i><?php echo $translations[$lang]['ar_viz']; ?></a>
         </div>
         <div class="logout-container">
