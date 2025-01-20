@@ -1,0 +1,18 @@
+{
+    "name": "thakk/kisan-main",
+    "description": "Agri portal",
+    "autoload": {
+        "psr-4": {
+            "Thakk\\KisanMain\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hitarth2510",
+            "email": "167961507+Hitarth2510@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "google/apiclient": "^2.18"
+    }
+}
