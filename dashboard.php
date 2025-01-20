@@ -58,7 +58,8 @@ $translations = [
         'market_intel_title' => 'Market Intelligence',
         'market_intel_desc' => 'Access real-time market prices, trends, and demand forecasts to maximize your profits.',
         'weather_forecast_title' => 'Weather Forecasting',
-        'weather_forecast_desc' => 'Stay ahead with accurate weather predictions and plan your farming activities accordingly.'
+        'weather_forecast_desc' => 'Stay ahead with accurate weather predictions and plan your farming activities accordingly.',
+        'news' => 'Agricultural News'
     ],
     'hi' => [
         'welcome' => 'स्वागत है',
@@ -99,7 +100,8 @@ $translations = [
         'market_intel_title' => 'बाजार बुद्धिमत्ता',
         'market_intel_desc' => 'अपने लाभ को अधिकतम करने के लिए वास्तविक समय के बाजार मूल्य, रुझान और मांग पूर्वानुमान तक पहुंच प्राप्त करें।',
         'weather_forecast_title' => 'मौसम पूर्वानुमान',
-        'weather_forecast_desc' => 'सटीक मौसम भविष्यवाणियों के साथ आगे रहें और तदनुसार अपनी कृषि गतिविधियों की योजना बनाएं।'
+        'weather_forecast_desc' => 'सटीक मौसम भविष्यवाणियों के साथ आगे रहें और तदनुसार अपनी कृषि गतिविधियों की योजना बनाएं।',
+        'news' => 'कृषि समाचार'
     ],
     'gu' => [
         'welcome' => 'સ્વાગત છે',
@@ -140,7 +142,8 @@ $translations = [
         'market_intel_title' => 'બજાર બુદ્ધિમત્તા',
         'market_intel_desc' => 'તમારા નફાને મહત્તમ કરવા માટે રીયલ-ટાઇમ બજાર ભાવ, વલણો અને માંગ આગાહીઓની માહિતી મેળવો.',
         'weather_forecast_title' => 'હવામાન આગાહી',
-        'weather_forecast_desc' => 'ચોક્કસ હવામાન આગાહીઓ સાથે આગળ રહો અને તે મુજબ તમારી ખેતી પ્રવૃત્તિઓનું આયોજન કરો.'
+        'weather_forecast_desc' => 'ચોક્કસ હવામાન આગાહીઓ સાથે આગળ રહો અને તે મુજબ તમારી ખેતી પ્રવૃત્તિઓનું આયોજન કરો.',
+        'news' => 'કૃષિ સમાચાર'
     ]
 ];
 ?>
@@ -479,6 +482,7 @@ $translations = [
             <a href="ai_assistant.php" class="nav-link"><i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?></a>
             <a href="crop_profit_calc.php" class="nav-link"><i class="fas fa-calculator"></i><?php echo $translations[$lang]['profit_calc']; ?></a>
             <a href="ar_visualization.php" class="nav-link"><i class="fas fa-vr-cardboard"></i><?php echo $translations[$lang]['ar_viz']; ?></a>
+            <a href="agri_news.php" class="nav-link"><i class="fas fa-newspaper"></i><?php echo $translations[$lang]['news']; ?></a>
         </div>
         <div class="logout-container">
             <a href="logout.php" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i><?php echo $translations[$lang]['logout']; ?></a>
