@@ -38,7 +38,6 @@ $translations = [
         'team' => 'Team',
         'projects' => 'Projects',
         'calendar' => 'Calendar',
-        'ar_viz' => 'AR Visualization',
         'smart_companion' => 'Your Smart Farming Companion',
         'hero_subtitle' => 'Access modern farming tools, market insights, and AI-powered recommendations all in one place',
         'about_title' => 'About Kisan.ai',
@@ -80,7 +79,6 @@ $translations = [
         'team' => 'टीम',
         'projects' => 'परियोजनाएं',
         'calendar' => 'कैलेंडर',
-        'ar_viz' => 'एआर विज़ुअलाइज़ेशन',
         'smart_companion' => 'आपका स्मार्ट कृषि साथी',
         'hero_subtitle' => 'एक ही स्थान पर आधुनिक कृषि उपकरण, बाजार अंतर्दृष्टि और एआई-संचालित सिफारिशें प्राप्त करें',
         'about_title' => 'किसान.एआई के बारे में',
@@ -122,7 +120,6 @@ $translations = [
         'team' => 'ટીમ',
         'projects' => 'પ્રોજેક્ટ્સ',
         'calendar' => 'કેલેન્ડર',
-        'ar_viz' => 'એઆર વિઝ્યુઅલાઇઝેશન',
         'smart_companion' => 'તમારો સ્માર્ટ ખેતી સાથી',
         'hero_subtitle' => 'એક જ સ્થળે આધુનિક ખેતી સાધનો, બજાર માહિતી અને AI-આધારિત ભલામણો મેળવો',
         'about_title' => 'કિસાન.એઆઈ વિશે',
@@ -242,6 +239,20 @@ $translations = [
             margin-right: 8px;
             width: 16px;
             font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link.dropdown-toggle {
+            text-align: left;
+            padding-left: 0.8rem;
+        }
+
+        .nav-link.dropdown-toggle i:last-child {
+            margin-left: auto;
+        }
+
+        .nav-link.dropdown-toggle[aria-expanded="true"] i:last-child {
+            transform: rotate(180deg);
         }
 
         .logout-container {
@@ -286,6 +297,11 @@ $translations = [
             display: none;
             font-size: 1.5rem;
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .hamburger-menu.active {
+            transform: rotate(90deg);
         }
 
         .user-profile {
@@ -306,9 +322,8 @@ $translations = [
             font-weight: 600;
             font-size: 0.8rem;
         }
-
-        /* Main Content Area */
-        .main-content {
+         /* Main Content Area */
+         .main-content {
             margin-left: 280px;
             padding: 80px 1.5rem 1.5rem;
         }
@@ -458,6 +473,47 @@ $translations = [
             text-align: center;
         }
 
+        /* Dropdown styles */
+        .dropdown-menu {
+            background: #1a1c23;
+            border: none;
+            border-radius: 6px;
+            margin-top: 0;
+            padding: 0.5rem 0;
+            transform-origin: top;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: scaleY(0);
+            opacity: 0;
+            width: 100%;
+            position: static;
+        }
+
+        .dropdown-menu.show {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        .dropdown-item {
+            color: rgba(255,255,255,0.8);
+            padding: 0.6rem 0.8rem;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            transform: translateX(5px);
+        }
+
         @media (max-width: 768px) {
             .hamburger-menu {
                 display: block;
@@ -491,10 +547,13 @@ $translations = [
                 bottom: 0;
                 background: rgba(0,0,0,0.5);
                 z-index: 999;
+                opacity: 0;
+                transition: opacity 0.3s ease;
             }
 
             .mobile-menu-overlay.active {
                 display: block;
+                opacity: 1;
             }
         }
     </style>
@@ -510,13 +569,23 @@ $translations = [
         </div>
         <div class="nav-links">
             <a href="#" class="nav-link active"><i class="fas fa-home"></i><?php echo $translations[$lang]['dashboard']; ?></a>
-            <a href="inventory.php" class="nav-link"><i class="fas fa-box"></i><?php echo $translations[$lang]['inventory']; ?></a>
+            
+            <!-- Tools Dropdown -->
+            <div class="dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="inventory.php"><i class="fas fa-box"></i><?php echo $translations[$lang]['inventory']; ?></a></li>
+                    <li><a class="dropdown-item" href="tools.php"><i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?></a></li>
+                    <li><a class="dropdown-item" href="crop_profit_calc.php"><i class="fas fa-calculator"></i><?php echo isset($translations[$lang]['profit_calc']) ? $translations[$lang]['profit_calc'] : 'Profit Calculator'; ?></a></li>
+                </ul>
+            </div>
+            
             <a href="market.php" class="nav-link"><i class="fas fa-chart-line"></i><?php echo $translations[$lang]['market']; ?></a>
             <a href="weather.php" class="nav-link"><i class="fas fa-cloud-sun"></i><?php echo $translations[$lang]['weather']; ?></a>
-            <a href="tools.php" class="nav-link"><i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?></a>
             <a href="ai_assistant.php" class="nav-link"><i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?></a>
-            <a href="crop_profit_calc.php" class="nav-link"><i class="fas fa-calculator"></i><?php echo isset($translations[$lang]['profit_calc']) ? $translations[$lang]['profit_calc'] : 'Profit Calculator'; ?></a>
-            <a href="ar_visualization.php" class="nav-link"><i class="fas fa-vr-cardboard"></i><?php echo $translations[$lang]['ar_viz']; ?></a>
             <a href="agri_news.php" class="nav-link"><i class="fas fa-newspaper"></i><?php echo $translations[$lang]['news']; ?></a>
         </div>
         <div class="logout-container">
