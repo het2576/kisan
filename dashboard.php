@@ -58,7 +58,9 @@ $translations = [
         'market_intel_desc' => 'Access real-time market prices, trends, and demand forecasts to maximize your profits.',
         'weather_forecast_title' => 'Weather Forecasting',
         'weather_forecast_desc' => 'Stay ahead with accurate weather predictions and plan your farming activities accordingly.',
-        'news' => 'Agricultural News'
+        'news' => 'Agricultural News',
+        'disease_detection' => 'Crop Disease Detection',
+        'disease_detection_desc' => 'Upload crop images to detect diseases and get treatment recommendations'
     ],
     'hi' => [
         'welcome' => 'स्वागत है',
@@ -99,7 +101,9 @@ $translations = [
         'market_intel_desc' => 'अपने लाभ को अधिकतम करने के लिए वास्तविक समय के बाजार मूल्य, रुझान और मांग पूर्वानुमान तक पहुंच प्राप्त करें।',
         'weather_forecast_title' => 'मौसम पूर्वानुमान',
         'weather_forecast_desc' => 'सटीक मौसम भविष्यवाणियों के साथ आगे रहें और तदनुसार अपनी कृषि गतिविधियों की योजना बनाएं।',
-        'news' => 'कृषि समाचार'
+        'news' => 'कृषि समाचार',
+        'disease_detection' => 'फसल रोग पहचान',
+        'disease_detection_desc' => 'रोगों का पता लगाने और उपचार की सिफारिशें प्राप्त करने के लिए फसल की छवियां अपलोड करें'
     ],
     'gu' => [
         'welcome' => 'સ્વાગત છે',
@@ -140,7 +144,9 @@ $translations = [
         'market_intel_desc' => 'તમારા નફાને મહત્તમ કરવા માટે રીયલ-ટાઇમ બજાર ભાવ, વલણો અને માંગ આગાહીઓની માહિતી મેળવો.',
         'weather_forecast_title' => 'હવામાન આગાહી',
         'weather_forecast_desc' => 'ચોક્કસ હવામાન આગાહીઓ સાથે આગળ રહો અને તે મુજબ તમારી ખેતી પ્રવૃત્તિઓનું આયોજન કરો.',
-        'news' => 'કૃષિ સમાચાર'
+        'news' => 'કૃષિ સમાચાર',
+        'disease_detection' => 'પાક રોગ શોધ',
+        'disease_detection_desc' => 'રોગોનું નિદાન કરવા અને સારવારની ભલામણો મેળવવા માટે પાકની છબીઓ અપલોડ કરો'
     ]
 ];
 ?>
@@ -587,6 +593,7 @@ $translations = [
             <a href="weather.php" class="nav-link"><i class="fas fa-cloud-sun"></i><?php echo $translations[$lang]['weather']; ?></a>
             <a href="ai_assistant.php" class="nav-link"><i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?></a>
             <a href="agri_news.php" class="nav-link"><i class="fas fa-newspaper"></i><?php echo $translations[$lang]['news']; ?></a>
+            <a href="crop_disease_detection.php" class="nav-link"><i class="fas fa-microscope"></i><?php echo $translations[$lang]['disease_detection']; ?></a>
         </div>
         <div class="logout-container">
             <a href="logout.php" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i><?php echo $translations[$lang]['logout']; ?></a>
