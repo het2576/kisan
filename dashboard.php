@@ -35,9 +35,6 @@ $translations = [
         'cost_per_acre' => 'Cost per Acre (₹)',
         'yield_per_acre' => 'Yield per Acre (kg)',
         'dashboard' => 'Dashboard',
-        'team' => 'Team',
-        'projects' => 'Projects',
-        'calendar' => 'Calendar',
         'smart_companion' => 'Your Smart Farming Companion',
         'hero_subtitle' => 'Access modern farming tools, market insights, and AI-powered recommendations all in one place',
         'about_title' => 'About Kisan.ai',
@@ -78,9 +75,6 @@ $translations = [
         'cost_per_acre' => 'प्रति एकड़ लागत (₹)',
         'yield_per_acre' => 'प्रति एकड़ उपज (किग्रा)',
         'dashboard' => 'डैशबोर्ड',
-        'team' => 'टीम',
-        'projects' => 'परियोजनाएं',
-        'calendar' => 'कैलेंडर',
         'smart_companion' => 'आपका स्मार्ट कृषि साथी',
         'hero_subtitle' => 'एक ही स्थान पर आधुनिक कृषि उपकरण, बाजार अंतर्दृष्टि और एआई-संचालित सिफारिशें प्राप्त करें',
         'about_title' => 'किसान.एआई के बारे में',
@@ -121,9 +115,6 @@ $translations = [
         'cost_per_acre' => 'એકર દીઠ ખર્ચ (₹)',
         'yield_per_acre' => 'એકર દીઠ ઉપજ (કિગ્રા)',
         'dashboard' => 'ડેશબોર્ડ',
-        'team' => 'ટીમ',
-        'projects' => 'પ્રોજેક્ટ્સ',
-        'calendar' => 'કેલેન્ડર',
         'smart_companion' => 'તમારો સ્માર્ટ ખેતી સાથી',
         'hero_subtitle' => 'એક જ સ્થળે આધુનિક ખેતી સાધનો, બજાર માહિતી અને AI-આધારિત ભલામણો મેળવો',
         'about_title' => 'કિસાન.એઆઈ વિશે',
@@ -160,7 +151,17 @@ $translations = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2F855A;
+            --secondary-color: #276749;
+            --accent-color: #E6FFFA;
+            --text-color: #2D3748;
+            --border-color: #E2E8F0;
+            --error-color: #E53E3E;
+        }
+
         body {
             background: #f8f9fa;
             color: #2c3e50;
@@ -288,11 +289,11 @@ $translations = [
             top: 0;
             right: 0;
             left: 280px;
-            height: 60px;
+            height: 70px;
             background: white;
-            padding: 0.8rem 1.5rem;
+            padding: 0.8rem 2rem;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             z-index: 900;
@@ -538,6 +539,7 @@ $translations = [
 
             .main-header {
                 left: 0;
+                padding: 0.8rem 1rem;
             }
 
             .main-content {
@@ -562,7 +564,193 @@ $translations = [
                 opacity: 1;
             }
         }
+
+        @media (min-width: 1200px) {
+            .main-header {
+                padding: 0.8rem 3rem;
+            }
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+            position: relative;
+        }
+
+        .notification-wrapper {
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .notification-bell:hover {
+            transform: scale(1.1);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 380px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            border: 1px solid var(--border-color);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+        }
+
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .mark-all-read:hover {
+            background: var(--accent-color);
+        }
+
+        .notification-list {
+            padding: 0.5rem;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            background: white;
+        }
+
+        .notification-item:hover {
+            background: var(--accent-color);
+            border-color: var(--border-color);
+        }
+
+        .notification-item.unread {
+            background: var(--accent-color);
+        }
+
+        .notification-item .title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .notification-item .message {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .notification-item .time {
+            font-size: 0.75rem;
+            color: var(--text-color);
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+
+        .notification-item i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .notification-dropdown {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                width: auto;
+                margin: 0 10px;
+                max-height: calc(100vh - 80px);
+            }
+
+            .header-right {
+                gap: 0.8rem;
+            }
+
+            .lang-selector {
+                display: flex;
+                gap: 0.3rem;
+            }
+
+            .lang-selector .btn {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .user-profile span {
+                display: none;
+            }
+        }
     </style>
+    <script>
+    // Check for notifications on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkNotifications();
+    });
+
+    // Function to check notifications
+    function checkNotifications() {
+        fetch('check_notifications.php')
+            .then(response => {
+                // Notification check complete
+                console.log('Notifications checked');
+            });
+    }
+    </script>
 </head>
 <body>
     <!-- Mobile Menu Overlay -->
@@ -605,16 +793,34 @@ $translations = [
         <div class="hamburger-menu">
             <i class="fas fa-bars"></i>
         </div>
-        <div class="lang-selector">
-            <a href="?lang=en" class="btn btn-outline-primary btn-sm">English</a>
-            <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
-            <a href="?lang=gu" class="btn btn-outline-primary btn-sm">ગુજરાતી</a>
-        </div>
-        <div class="user-profile">
-            <div class="user-avatar">
-                <?php echo substr($_SESSION['name'], 0, 1); ?>
+        <div class="header-right">
+            <div class="notification-wrapper">
+                <div class="notification-bell" id="notificationBell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount"></span>
+                </div>
+                
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h6>Notifications</h6>
+                        <button class="mark-all-read">Mark all as read</button>
+                    </div>
+                    <div class="notification-list" id="notificationList">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
             </div>
-            <span><?php echo $_SESSION['name']; ?></span>
+            <div class="lang-selector">
+                <a href="?lang=en" class="btn btn-outline-primary btn-sm">English</a>
+                <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
+                <a href="?lang=gu" class="btn btn-outline-primary btn-sm">ગુજરાતી</a>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <?php echo substr($_SESSION['name'], 0, 1); ?>
+                </div>
+                <span><?php echo $_SESSION['name']; ?></span>
+            </div>
         </div>
     </header>
 
@@ -729,6 +935,207 @@ $translations = [
             document.querySelector('.sidebar').classList.remove('active');
             document.querySelector('.mobile-menu-overlay').classList.remove('active');
         });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('notificationDropdown');
+        const notificationList = document.getElementById('notificationList');
+        const countBadge = document.getElementById('notificationCount');
+        const markAllReadBtn = document.querySelector('.mark-all-read');
+        let isDropdownOpen = false;
+
+        // Function to handle fetch errors
+        async function handleFetchResponse(response) {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+            return await response.text();
+        }
+
+        // Function to update notification count
+        async function updateNotificationCount() {
+            try {
+                const response = await fetch('notifications.php?action=get_count');
+                const data = await handleFetchResponse(response);
+                
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+                
+                const count = parseInt(data.count) || 0;
+                countBadge.textContent = count;
+                countBadge.style.display = count > 0 ? 'flex' : 'none';
+                
+                if (count > 0) {
+                    bell.classList.add('animate__animated', 'animate__headShake');
+                }
+            } catch (error) {
+                console.error('Error updating count:', error);
+                countBadge.style.display = 'none';
+            }
+        }
+
+        // Function to load notifications
+        async function loadNotifications() {
+            try {
+                notificationList.innerHTML = '<div class="notification-item"><div class="message">Loading...</div></div>';
+                
+                const response = await fetch('notifications.php?action=get_notifications');
+                const data = await handleFetchResponse(response);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const notifications = data.notifications || [];
+                const translations = data.translations || {
+                    no_notifications: 'No notifications',
+                    mark_all_read: 'Mark all as read',
+                    notifications: 'Notifications'
+                };
+
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-item">
+                            <div class="message">${translations.no_notifications}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                notificationList.innerHTML = notifications.map(notification => `
+                    <div class="notification-item ${!notification.is_read ? 'unread' : ''}" 
+                         data-id="${notification.id}">
+                        <i class="fas ${notification.icon}"></i>
+                        <div class="title">${notification.title}</div>
+                        <div class="message">${notification.message}</div>
+                        <div class="time">${timeAgo(notification.created_at)}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                notificationList.innerHTML = `
+                    <div class="notification-item">
+                        <div class="message">Error loading notifications</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to format time
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        // Toggle dropdown
+        bell.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isDropdownOpen = !isDropdownOpen;
+            dropdown.style.display = isDropdownOpen ? 'block' : 'none';
+            
+            if (isDropdownOpen) {
+                await loadNotifications();
+                bell.classList.remove('animate__animated', 'animate__headShake');
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+                isDropdownOpen = false;
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Mark notification as read
+        notificationList.addEventListener('click', async (e) => {
+            const item = e.target.closest('.notification-item');
+            if (item && item.classList.contains('unread')) {
+                try {
+                    const notificationId = item.dataset.id;
+                    const formData = new FormData();
+                    formData.append('notification_id', notificationId);
+
+                    const response = await fetch('notifications.php?action=mark_read', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await handleFetchResponse(response);
+                    
+                    if (data.success) {
+                        item.classList.remove('unread');
+                        await updateNotificationCount();
+                    }
+                } catch (error) {
+                    console.error('Error marking as read:', error);
+                }
+            }
+        });
+
+        // Mark all as read
+        markAllReadBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            try {
+                const response = await fetch('notifications.php?action=mark_all_read');
+                const data = await handleFetchResponse(response);
+                
+                if (data.success) {
+                    document.querySelectorAll('.notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                    });
+                    await updateNotificationCount();
+                }
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+            }
+        });
+
+        // Initial check for notifications
+        async function checkNotifications() {
+            try {
+                const response = await fetch('check_notifications.php');
+                const data = await handleFetchResponse(response);
+                
+                if (data.success) {
+                    await updateNotificationCount();
+                    if (isDropdownOpen) {
+                        await loadNotifications();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking notifications:', error);
+            }
+        }
+
+        // Initial load
+        updateNotificationCount();
+        checkNotifications();
+        
+        // Check for new notifications every 30 seconds
+        setInterval(checkNotifications, 30000);
+    });
     </script>
 </body>
 </html>

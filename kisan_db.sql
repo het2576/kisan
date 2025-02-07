@@ -47,3 +47,59 @@ CREATE TABLE Tools (
     status ENUM('available', 'in_use') DEFAULT 'available',
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
+
+-- Drop existing notifications table if exists
+DROP TABLE IF EXISTS notifications;
+
+-- Create notifications table with correct structure
+CREATE TABLE notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reference_id INT,
+    language VARCHAR(5) NOT NULL DEFAULT 'en',
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS weather_alerts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    location_id INT,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS market_prices (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    crop_id INT NOT NULL,
+    crop_name VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_crops (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    crop_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Add test notifications with language field
+INSERT INTO notifications (user_id, type, title, message, is_read, language) VALUES 
+-- English notifications
+(1, 'inventory', 'Low Stock Alert', 'Your wheat seeds inventory is running low', 0, 'en'),
+(1, 'market', 'Price Update', 'Cotton prices have increased by 5%', 0, 'en'),
+(1, 'weather', 'Weather Alert', 'Heavy rainfall expected tomorrow', 0, 'en'),
+
+-- Hindi notifications
+(1, 'inventory', 'स्टॉक अलर्ट', 'आपका गेहूं बीज स्टॉक कम हो रहा है', 0, 'hi'),
+(1, 'market', 'मूल्य अपडेट', 'कपास की कीमतों में 5% की वृद्धि हुई है', 0, 'hi'),
+(1, 'weather', 'मौसम अलर्ट', 'कल भारी बारिश की संभावना है', 0, 'hi'),
+
+-- Gujarati notifications
+(1, 'inventory', 'સ્ટોક એલર્ટ', 'તમારો ઘઉંના બીજનો સ્ટોક ઓછો થઈ રહ્યો છે', 0, 'gu'),
+(1, 'market', 'ભાવ અપડેટ', 'કપાસના ભાવમાં 5% નો વધારો થયો છે', 0, 'gu'),
+(1, 'weather', 'હવામાન એલર્ટ', 'આવતીકાલે ભારે વરસાદની આગાહી', 0, 'gu');
