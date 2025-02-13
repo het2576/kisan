@@ -1,6 +1,8 @@
 <?php
 session_start();
-include 'db_connect.php';
+
+// Include database connection
+require_once 'db_connect.php';
 
 // Google Client Configuration
 $clientID = '1037427370758-vu656ogqoh3jckejva39vn6ljuk5pimk.apps.googleusercontent.com';
@@ -68,29 +70,38 @@ if (isset($_GET['code'])) {
 }
 
 // Regular Login Process
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
-
-    $sql = "SELECT * FROM Users WHERE email = ?";
+    
+    // Sanitize inputs
+    $email = $conn->real_escape_string($email);
+    
+    // Query to check user credentials - removed 'role' from SELECT
+    $sql = "SELECT user_id, name, email, password FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
+    
+    if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
+        
+        // Verify password
         if (password_verify($password, $user['password'])) {
+            // Set session variables
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['name'] = $user['name'];
-            $_SESSION['region'] = $user['region'];
+            $_SESSION['email'] = $user['email'];
+            
+            // Redirect to dashboard
             header("Location: dashboard.php");
             exit();
         } else {
-            echo "<script>alert('Invalid password!');</script>";
+            $error = "Invalid password";
         }
     } else {
-        echo "<script>alert('User not found!');</script>";
+        $error = "User not found";
     }
 }
 ?>
@@ -101,125 +112,247 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Kisan.ai</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2F855A;
+            --secondary-color: #276749;
+            --accent-color: #E6FFFA;
+            --text-color: #2D3748;
+            --border-color: #E2E8F0;
+            --error-color: #E53E3E;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #2d3748;
-            line-height: 1.6;
-        }
-        .login-container {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            max-width: 450px;
-            margin: auto;
-        }
-        .btn-primary {
-            background: linear-gradient(45deg, #0d6efd, #0099ff);
-            border: none;
-            padding: 14px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-        }
-        .btn-google {
-            background-color: #fff;
-            color: #333;
-            border: 2px solid #e2e8f0;
-            padding: 14px;
-            font-weight: 600;
-            font-size: 1rem;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
         }
-        .btn-google:hover {
-            background-color: #f8f9fa;
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
         }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
         .form-control {
-            padding: 14px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
             font-size: 1rem;
-            font-weight: 500;
+            transition: all 0.3s ease;
         }
+
         .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-            border-color: #0d6efd;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--accent-color);
         }
+
+        .form-label {
+            color: var(--text-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .alert {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
         .divider {
             display: flex;
             align-items: center;
             text-align: center;
-            margin: 24px 0;
+            margin: 1.5rem 0;
         }
-        .divider::before, .divider::after {
+
+        .divider::before,
+        .divider::after {
             content: '';
             flex: 1;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-color);
         }
+
         .divider span {
-            padding: 0 16px;
-            color: #4a5568;
-            font-size: 1rem;
-            font-weight: 500;
+            padding: 0 1rem;
+            color: var(--text-color);
+            opacity: 0.5;
         }
-        h2 {
-            font-size: 2.25rem;
-            color: #1a202c;
-            letter-spacing: -0.5px;
+
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .text-primary {
-            color: #0d6efd !important;
-            font-weight: 600;
+
+        .social-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        p {
-            font-size: 1rem;
-            color: #4a5568;
+
+        .social-btn:hover {
+            background-color: var(--accent-color);
+            border-color: var(--primary-color);
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <div class="login-container p-5 fade-in">
-                    <h2 class="text-center mb-4 fw-bold">Welcome Back</h2>
-                    <form action="login.php" method="POST">
-                        <div class="mb-4">
-                            <input type="email" name="email" class="form-control" placeholder="Email address" required>
-                        </div>
-                        <div class="mb-4">
-                            <input type="password" name="password" class="form-control" placeholder="Password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 mb-4">Sign In</button>
-                    </form>
-                    
-                    <div class="divider">
-                        <span>or continue with</span>
-                    </div>
-                    
-                    <a href="<?php echo $client->createAuthUrl(); ?>" class="btn btn-google w-100 mb-4">
-                        <i class="bi bi-google fs-5"></i>
-                        <span>Sign in with Google</span>
-                    </a>
-                    
-                    <p class="text-center mb-0">
-                        Don't have an account? 
-                        <a href="register.php" class="text-primary text-decoration-none ms-1">Sign up</a>
-                    </p>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Welcome to Kisan.ai</h1>
+            <p>Login to access your account</p>
+        </div>
+
+        <?php if (isset($error)): ?>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="">
+            <div class="mb-4">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                    <input type="email" class="form-control" id="email" name="email" required 
+                           placeholder="Enter your email">
                 </div>
             </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" class="form-control" id="password" name="password" required 
+                           placeholder="Enter your password">
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="remember">
+                    <label class="form-check-label" for="remember">Remember me</label>
+                </div>
+                <a href="forgot-password.php" class="text-decoration-none">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 mb-3">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>or continue with</span>
+        </div>
+
+        <div class="social-login">
+            <button class="social-btn">
+                <i class="fab fa-google"></i>
+                Google
+            </button>
+            <button class="social-btn">
+                <i class="fab fa-facebook-f"></i>
+                Facebook
+            </button>
+        </div>
+
+        <div class="footer-links">
+            <p class="mb-0">Don't have an account? 
+                <a href="register.php" class="fw-bold">Create Account</a>
+            </p>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
