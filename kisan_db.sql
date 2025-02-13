@@ -1,15 +1,123 @@
-CREATE DATABASE kisan_db;
+-- Create database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS kisan_db;
 USE kisan_db;
 
--- Users Table
-CREATE TABLE Users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(15),
-    region VARCHAR(100)
+    phone VARCHAR(20),
+    role ENUM('farmer', 'buyer', 'admin') NOT NULL DEFAULT 'farmer',
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Categories table
+CREATE TABLE IF NOT EXISTS categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Products table
+CREATE TABLE IF NOT EXISTS products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    seller_id INT NOT NULL,
+    category_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price_per_kg DECIMAL(10,2) NOT NULL,
+    quantity_available DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(20) DEFAULT 'kg',
+    harvest_date DATE,
+    expiry_date DATE,
+    farming_method VARCHAR(100),
+    is_organic BOOLEAN DEFAULT FALSE,
+    location VARCHAR(255),
+    status ENUM('available', 'sold_out', 'removed') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (seller_id) REFERENCES users(user_id),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Product Images table
+CREATE TABLE IF NOT EXISTS product_images (
+    image_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
+
+-- Orders table
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    buyer_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'confirmed', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (buyer_id) REFERENCES users(user_id),
+    FOREIGN KEY (seller_id) REFERENCES users(user_id)
+);
+
+-- Order Items table
+CREATE TABLE IF NOT EXISTS order_items (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL,
+    price_per_unit DECIMAL(10,2) NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+-- Notifications table
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50),
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Reviews table
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Insert default categories
+INSERT INTO categories (name, description) VALUES
+('Vegetables', 'Fresh vegetables and greens'),
+('Fruits', 'Fresh seasonal fruits'),
+('Grains', 'Wheat, rice, and other grains'),
+('Pulses', 'Different types of dals and pulses'),
+('Spices', 'Fresh and dried spices'),
+('Organic Products', 'Certified organic produce'),
+('Seeds', 'Agricultural seeds'),
+('Others', 'Other agricultural products');
+
+-- Insert a default admin user (password: admin123)
+INSERT INTO users (name, email, password, role) VALUES
+('Admin', 'admin@kisan.ai', '$2y$10$8FPi8P.Y8mhMX/MxWNqXJexX0ZVqZkYxwAI0qXNQzW2MQEHr8JnK.', 'admin');
 
 -- Inventory Table
 CREATE TABLE Inventory (

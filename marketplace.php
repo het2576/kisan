@@ -7,16 +7,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Set language based on GET parameter or session; default is English
-if (isset($_GET['lang'])) {
-    $lang = $_GET['lang'];
-    $_SESSION['lang'] = $lang;
-} elseif (isset($_SESSION['lang'])) {
-    $lang = $_SESSION['lang'];
-} else {
-    $lang = 'en';
-    $_SESSION['lang'] = $lang;
-}
+// Get language from session
+$lang = $_SESSION['lang'] ?? 'en';
 
 // Extended Translations Array for Sidebar and Marketplace
 $translations = [
@@ -44,14 +36,45 @@ $translations = [
         'harvest_date'      => 'Harvest Date',
         'expiry_date'       => 'Expiry Date',
         'farming_method'    => 'Farming Method',
-        'is_organic'        => 'Organic?',
+        'is_organic'        => 'Organic',
         'location'          => 'Location',
         'product_image'     => 'Product Image',
         'upload_product'    => 'Upload Product',
         'no_products'       => 'No products found.',
         'buy_now'           => 'Buy Now',
         'edit'              => 'Edit',
-        'delete'            => 'Delete'
+        'delete'            => 'Delete',
+        'active_listings'   => 'Active Listings',
+        'total_value'       => 'Total Inventory Value',
+        'low_stock'         => 'Low Stock Items',
+        'manage_products'   => 'Manage Products',
+        'search_products'   => 'Search products...',
+        'price_per_kg'      => 'Price per kg',
+        'available'         => 'Available',
+        'sold_out'          => 'Sold Out',
+        'removed'           => 'Removed',
+        'status'            => 'Status',
+        'save_changes'      => 'Save Changes',
+        'close'             => 'Close',
+        'confirm_delete'    => 'Are you sure you want to delete this product?',
+        'upload_up_to_5_images' => 'You can upload up to 5 images',
+        'product_images'    => 'Product Images',
+        'enter_location'    => 'Enter location',
+        'this_is_organic_product' => 'This is an organic product',
+        'minimum_order_quantity' => 'Minimum Order Quantity',
+        'delivery_options'  => 'Delivery Options',
+        'pickup_available'  => 'Pickup Available',
+        'delivery_available' => 'Delivery Available',
+        'edit_product'      => 'Edit Product',
+        'all_categories'    => 'All Categories',
+        'all_status'        => 'All Status',
+        'sort_newest'       => 'Newest First',
+        'sort_price_high'   => 'Price: High to Low',
+        'sort_price_low'    => 'Price: Low to High',
+        'unit_kg'           => 'Kg',
+        'unit_gram'         => 'Gram',
+        'unit_piece'        => 'Piece',
+        'select_category'   => 'Select Category'
     ],
     'hi' => [
         'dashboard'         => 'डैशबोर्ड',
@@ -75,14 +98,45 @@ $translations = [
         'harvest_date'      => 'फसल कटाई की तारीख',
         'expiry_date'       => 'समाप्ति तिथि',
         'farming_method'    => 'खेती की विधि',
-        'is_organic'        => 'जैविक?',
+        'is_organic'        => 'जैविक',
         'location'          => 'स्थान',
         'product_image'     => 'उत्पाद छवि',
         'upload_product'    => 'उत्पाद अपलोड करें',
         'no_products'       => 'कोई उत्पाद नहीं मिले।',
         'buy_now'           => 'अभी खरीदें',
         'edit'              => 'संपादित करें',
-        'delete'            => 'हटाएं'
+        'delete'            => 'हटाएं',
+        'active_listings'   => 'सक्रिय सूची',
+        'total_value'       => 'कुल विवेचन मूल्य',
+        'low_stock'         => 'कम स्टॉक वस्तुएं',
+        'manage_products'   => 'उत्पाद प्रबंधन',
+        'search_products'   => 'उत्पाद खोजें...',
+        'price_per_kg'      => 'प्रति किलो मूल्य',
+        'available'         => 'उपलब्ध',
+        'sold_out'          => 'बिक गया',
+        'removed'           => 'हटा दिया गया',
+        'status'            => 'स्थिति',
+        'save_changes'      => 'परिवर्तन सहेजें',
+        'close'             => 'बंद करें',
+        'confirm_delete'    => 'क्या आप वाकई इस उत्पाद को हटाना चाहते हैं?',
+        'upload_up_to_5_images' => 'आप 5 तक छवियां अपलोड कर सकते हैं',
+        'product_images'    => 'उत्पाद छवियां',
+        'enter_location'    => 'स्थान दर्ज करें',
+        'this_is_organic_product' => 'यह एक जैविक उत्पाद है',
+        'minimum_order_quantity' => 'न्यूनतम ऑर्डर मात्रा',
+        'delivery_options'  => 'डिलीवरी विकल्प',
+        'pickup_available'  => 'पिकअप उपलब्ध',
+        'delivery_available' => 'डिलीवरी उपलब्ध',
+        'edit_product'      => 'उत्पाद संपादित करें',
+        'all_categories'    => 'सभी वर्ग',
+        'all_status'        => 'सभी स्थितियां',
+        'sort_newest'       => 'नया पहला',
+        'sort_price_high'   => 'मोटा मूल्य',
+        'sort_price_low'    => 'कम मूल्य',
+        'unit_kg'           => 'किलो',
+        'unit_gram'         => 'ग्राम',
+        'unit_piece'        => 'नग',
+        'select_category'   => 'श्रेणी चुनें'
     ],
     'gu' => [
         'dashboard'         => 'ડેશબોર્ડ',
@@ -106,24 +160,111 @@ $translations = [
         'harvest_date'      => 'કાપવાની તારીખ',
         'expiry_date'       => 'અવધિ પૂર્ણ થવાની તારીખ',
         'farming_method'    => 'ખેતી પદ્ધતિ',
-        'is_organic'        => 'ઓર્ગેનિક?',
+        'is_organic'        => 'ઓર્ગેનિક',
         'location'          => 'સ્થાન',
         'product_image'     => 'પ્રોડક્ટ છબી',
         'upload_product'    => 'પ્રોડક્ટ અપલોડ કરો',
         'no_products'       => 'કોઈ પ્રોડક્ટ મળ્યા નથી.',
         'buy_now'           => 'હવે ખરીદો',
         'edit'              => 'એડિટ',
-        'delete'            => 'ડિલીટ'
+        'delete'            => 'ડિલીટ',
+        'active_listings'   => 'સક્રિય સૂચિ',
+        'total_value'       => 'કુલ વિવેચન કિંમત',
+        'low_stock'         => 'ઓછ સ્ટૉક વસ્તુઓ',
+        'manage_products'   => 'પ્રોડક્ટ મેનેજમેન્ટ',
+        'search_products'   => 'પ્રોડક્ટ શોધો...',
+        'price_per_kg'      => 'પ્રતિ કિલો કિંમત',
+        'available'         => 'ઉપલબ્ધ',
+        'sold_out'          => 'વેચાઈ ગયું',
+        'removed'           => 'દૂર કરાયું',
+        'status'            => 'સ્થિતિ',
+        'save_changes'      => 'ફેરફારો સાચવો',
+        'close'             => 'બંધ કરો',
+        'confirm_delete'    => 'શું તમે ખરેખર આ પ્રોડક્ટ કાઢી નાખવા માંગો છો?',
+        'upload_up_to_5_images' => 'તમે 5 સુધી છબીઓ અપલોડ કરી શકો છો',
+        'product_images'    => 'પ્રોડક્ટ છબીઓ',
+        'enter_location'    => 'સ્થાન દાખલ કરો',
+        'this_is_organic_product' => 'આ એક ઓર્ગેનિક પ્રોડક્ટ છે',
+        'minimum_order_quantity' => 'ન્યૂનતમ ઓર્ડર જથ્થો',
+        'delivery_options'  => 'ડિલિવરી વિકલ્પો',
+        'pickup_available'  => 'પિકઅપ ઉપલબ્ધ',
+        'delivery_available' => 'ડિલિવરી ઉપલબ્ધ',
+        'edit_product'      => 'પ્રોડક્ટ સંપાદિત કરો',
+        'all_categories'    => 'બધા વર્ગો',
+        'all_status'        => 'બધી સ્થિતિયોં',
+        'sort_newest'       => 'નવો પહોળો',
+        'sort_price_high'   => 'વધુ કિંમત',
+        'sort_price_low'    => 'ઓછ કિંમત',
+        'unit_kg'           => 'કિલો',
+        'unit_gram'         => 'ગ્રામ',
+        'unit_piece'        => 'નંગ',
+        'select_category'   => 'કેટેગરી પસંદ કરો'
     ]
 ];
+
+// Add category translations
+$category_translations = [
+    'en' => [
+        'Vegetables' => 'Vegetables',
+        'Fruits' => 'Fruits',
+        'Grains' => 'Grains',
+        'Pulses' => 'Pulses',
+        'Spices' => 'Spices',
+        'Organic Products' => 'Organic Products',
+        'Seeds' => 'Seeds',
+        'Others' => 'Others'
+    ],
+    'hi' => [
+        'Vegetables' => 'सब्जियां',
+        'Fruits' => 'फल',
+        'Grains' => 'अनाज',
+        'Pulses' => 'दालें',
+        'Spices' => 'मसाले',
+        'Organic Products' => 'जैविक उत्पाद',
+        'Seeds' => 'बीज',
+        'Others' => 'अन्य'
+    ],
+    'gu' => [
+        'Vegetables' => 'શાકભાજી',
+        'Fruits' => 'ફળો',
+        'Grains' => 'અનાજ',
+        'Pulses' => 'કઠોળ',
+        'Spices' => 'મસાલા',
+        'Organic Products' => 'જૈવિક ઉત્પાદનો',
+        'Seeds' => 'બીજ',
+        'Others' => 'અન્ય'
+    ]
+];
+
+// Function to translate category name
+function translateCategory($categoryName, $lang, $translations) {
+    return $translations[$lang][$categoryName] ?? $categoryName;
+}
 
 // Include the database connection file (ensure that db_connect.php defines $conn)
 require_once 'db_connect.php';
 
-// Fetch all products with their images, categories, and seller info
+// Update the query to be more explicit
 $query = "
-    SELECT p.*, c.name as category_name, u.name as seller_name,
-    (SELECT image_url FROM product_images WHERE product_id = p.product_id AND is_primary = 1 LIMIT 1) as image_url
+    SELECT 
+        p.product_id,
+        p.seller_id,
+        p.category_id,
+        p.name,
+        p.description,
+        p.price_per_kg,
+        IFNULL(p.quantity_available, 0) as quantity_available,
+        IFNULL(p.unit, 'kg') as unit,
+        p.harvest_date,
+        p.expiry_date,
+        p.farming_method,
+        IFNULL(p.is_organic, 0) as is_organic,
+        p.location,
+        IFNULL(p.status, 'available') as status,
+        c.name as category_name,
+        u.name as seller_name,
+        u.phone_number as seller_phone,
+        (SELECT image_url FROM product_images WHERE product_id = p.product_id AND is_primary = 1 LIMIT 1) as image_url
     FROM products p 
     LEFT JOIN categories c ON p.category_id = c.category_id
     LEFT JOIN users u ON p.seller_id = u.user_id
@@ -131,11 +272,38 @@ $query = "
     ORDER BY p.created_at DESC
 ";
 
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$products = $result->fetch_all(MYSQLI_ASSOC);
+try {
+    $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    if (!$stmt->execute()) {
+        throw new Exception("Execute failed: " . $stmt->error);
+    }
+
+    $result = $stmt->get_result();
+    $products = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Process products to ensure all required fields have default values
+    $products = array_map(function($product) {
+        return array_merge([
+            'quantity_available' => 0,
+            'unit' => 'kg',
+            'status' => 'available',
+            'is_organic' => 0,
+            'image_url' => 'assets/default-product.jpg'
+        ], $product);
+    }, $products);
+
+    // Add debug output
+    error_log("Query executed successfully");
+    error_log("Number of products found: " . count($products));
+} catch (Exception $e) {
+    error_log("Error in marketplace query: " . $e->getMessage());
+    $products = [];
+}
 
 // Calculate statistics
 $activeListings = 0;
@@ -146,8 +314,9 @@ foreach ($products as $product) {
     if ($product['status'] === 'available') {
         $activeListings++;
     }
-    $totalValue += ($product['price_per_kg'] * $product['quantity_available']);
-    if ($product['quantity_available'] < 10) {
+    $quantity = isset($product['quantity_available']) ? $product['quantity_available'] : 0;
+    $totalValue += ($product['price_per_kg'] * $quantity);
+    if ($quantity < 10) {
         $lowStockItems++;
     }
 }
@@ -231,334 +400,344 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places"></script>
   <style>
     :root {
-      --primary-color: #2F855A;
-      --secondary-color: #276749;
-      --accent-color: #E6FFFA;
-      --text-color: #2D3748;
-      --border-color: #E2E8F0;
-      --error-color: #E53E3E;
+        --primary-color: #2F855A;
+        --secondary-color: #276749;
+        --accent-color: #F6E05E;
+        --success-color: #48BB78;
+        --warning-color: #ED8936;
+        --danger-color: #E53E3E;
+        --text-dark: #2D3748;
+        --text-light: #718096;
+        --border-color: #E2E8F0;
+        --bg-light: #F9FAFB;
     }
+
     body {
-      background: #f8f9fa;
-      color: #2c3e50;
-      font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
+        background: white;
+        font-family: 'Poppins', sans-serif;
     }
-    /* Sidebar Styles (kept for reference if needed) */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 280px;
-      background: #1a1c23;
-      color: #ffffff;
-      padding: 1rem;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      box-shadow: 4px 0 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      font-size: 0.9rem;
+
+    .marketplace-title {
+        color: var(--primary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 2rem 0;
+        text-align: center;
+        position: relative;
     }
-    .sidebar-logo {
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+
+    .marketplace-title:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-color);
+        margin: 1rem auto;
+        border-radius: 2px;
     }
-    .sidebar-logo h3 {
-      color: #ffffff;
-      font-weight: 600;
-      margin: 0;
-      font-size: 1.3rem;
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      flex: 1;
-      padding-bottom: 0.5rem;
-      overflow-y: auto;
-    }
-    .nav-link {
-      color: rgba(255,255,255,0.8);
-      padding: 0.6rem 0.8rem;
-      margin: 0.1rem 0;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      font-weight: 500;
-      white-space: nowrap;
-      font-size: 0.8rem;
-    }
-    .nav-link:hover {
-      background: rgba(255,255,255,0.1);
-      color: #ffffff;
-      transform: translateX(5px);
-    }
-    .nav-link.active {
-      background: #3182ce;
-      color: #ffffff;
-    }
-    .nav-link i {
-      margin-right: 8px;
-      width: 16px;
-      font-size: 0.9rem;
-      transition: transform 0.3s ease;
-    }
-    .logout-container {
-      margin-top: auto;
-      padding-top: 0.5rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      flex-shrink: 0;
-    }
-    .logout-link {
-      background: rgba(255,59,48,0.1);
-      color: #ff3b30;
-      width: 100%;
-      margin: 0;
-      font-size: 0.8rem;
-      padding: 0.6rem 0.8rem;
-    }
-    .logout-link:hover {
-      background: rgba(255,59,48,0.2);
-      color: #ff3b30;
-    }
-    /* Updated Header Styles */
-    .main-header {
-      position: fixed;
-      top: 0;
-      right: 0;
-      left: 0; /* Changed from 280px to 0 */
-      height: 70px;
-      background: white;
-      padding: 0.8rem 2rem;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      z-index: 900;
-      font-size: 0.9rem;
-    }
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .user-avatar {
-      width: 35px;
-      height: 35px;
-      background: #3182ce;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-    /* Updated Main Content Area */
-    .main-content {
-      margin-left: 0; /* Changed from 280px to 0 */
-      padding: 80px 1.5rem 1.5rem;
-    }
-    /* Marketplace Section */
-    .marketplace-section {
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      margin-bottom: 2rem;
-    }
-    .card-img-top {
-      height: 200px;
-      object-fit: cover;
-    }
-    .product-card {
-      transition: transform 0.3s ease;
-      height: 100%;
-    }
-    .product-card:hover {
-      transform: translateY(-5px);
-    }
-    .add-product-fab {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #2F855A;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .add-product-fab:hover {
-      transform: scale(1.1);
-      background: #276749;
-    }
-    .product-image {
-      height: 200px;
-      object-fit: cover;
-    }
-    .organic-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(47, 133, 90, 0.9);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-    }
-    /* Google Places Autocomplete Styles */
-    .pac-container {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      font-family: 'Poppins', sans-serif;
-      margin-top: 5px;
-    }
-    .pac-item {
-      padding: 8px 15px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s;
-    }
-    .pac-item:hover {
-      background-color: #f8f9fa;
-    }
-    .pac-item-query {
-      font-size: 14px;
-      color: #2D3748;
-    }
-    .pac-matched {
-      font-weight: bold;
-    }
-    .pac-icon {
-      margin-right: 10px;
-    }
-    .product-card {
-      transition: transform 0.2s;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .product-image {
-      height: 200px;
-      object-fit: cover;
-    }
-    .organic-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(47, 133, 90, 0.9);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-    }
-    .delivery-options {
-      margin-top: 10px;
-    }
-    .delivery-options .badge {
-      margin-right: 5px;
-    }
-    .card-footer {
-      background: transparent;
-      border-top: 1px solid rgba(0,0,0,0.1);
-    }
-    .product-card {
-      border: none;
-      transition: transform 0.3s, box-shadow 0.3s;
-      height: 100%;
-    }
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    .product-image-container {
-      position: relative;
-      padding-top: 75%;
-      overflow: hidden;
-      border-radius: 8px;
-    }
-    .product-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .organic-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(47, 133, 90, 0.9);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      z-index: 1;
-    }
-    .price-tag {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #2F855A;
-    }
-    .location-text {
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .seller-info {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .filter-section {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .filter-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: #333;
-    }
-    .dashboard-stats {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+
     .stat-card {
-      padding: 20px;
-      border-radius: 8px;
-      color: white;
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
     }
-    .stat-card.primary { background: linear-gradient(45deg, #4CAF50, #45a049); }
-    .stat-card.warning { background: linear-gradient(45deg, #ff9800, #f57c00); }
-    .stat-card.danger { background: linear-gradient(45deg, #f44336, #e53935); }
-    .stat-card.info { background: linear-gradient(45deg, #2196F3, #1976D2); }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+    }
+
+    .stat-card.active-listings {
+        background: linear-gradient(145deg, #ffffff, #f0f9f5);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .stat-card.total-value {
+        background: linear-gradient(145deg, #ffffff, #ebf8ff);
+        border-left: 4px solid #3182CE;
+    }
+
+    .stat-card.low-stock {
+        background: linear-gradient(145deg, #ffffff, #fff5f5);
+        border-left: 4px solid var(--warning-color);
+    }
+
+    .stat-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card.active-listings h3 { color: var(--primary-color); }
+    .stat-card.total-value h3 { color: #3182CE; }
+    .stat-card.low-stock h3 { color: var(--warning-color); }
+
+    .stat-card p {
+        color: var(--text-dark);
+        font-size: 1rem;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+        font-weight: 500;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+    }
+
+    .product-card:hover {
+        transform: none;
+    }
+
+    .product-image-container {
+        position: relative;
+        padding-top: 75%;
+        overflow: hidden;
+        background: var(--bg-light);
+    }
+
+    .product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .organic-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(47, 133, 90, 0.95);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .product-details {
+        padding: 1.5rem;
+    }
+
+    .product-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.75rem;
+    }
+
+    .price-tag {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-badge.available {
+        background-color: rgba(72, 187, 120, 0.1);
+        color: var(--success-color);
+    }
+
+    .status-badge.sold-out {
+        background-color: rgba(237, 137, 54, 0.1);
+        color: var(--warning-color);
+    }
+
+    .product-meta {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .product-meta i {
+        color: var(--primary-color);
+    }
+
+    .card {
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        background: white;
+    }
+
+    .card:hover {
+        transform: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+    }
+
+    .filters-section {
+        background: var(--bg-light);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: none;
+    }
+
+    .form-control:hover, .form-select:hover {
+        transform: none;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(47, 133, 90, 0.1);
+        transform: none;
+    }
+
+    .btn {
+        transition: none;
+    }
+
+    .btn:hover {
+        transform: none;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+    }
+
+    .btn-danger {
+        transition: none;
+    }
+
+    .btn-danger:hover {
+        transform: none;
+    }
+
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+    }
+
+    .modal-header {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 1.5rem;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+
+    .modal-body {
+        padding: 2rem;
+        color: var(--text-dark);
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text, .text-muted {
+        color: var(--text-light) !important;
+        font-size: 0.875rem;
+    }
+
+    .input-group-text {
+        background-color: var(--bg-light);
+        border-color: var(--border-color);
+        color: var(--text-light);
+    }
+
+    .form-check-label {
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--border-color);
+        padding: 1.5rem;
+    }
+
+    .form-select {
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .form-select option {
+        color: var(--text-dark);
+        padding: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .marketplace-title {
+            font-size: 2rem;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+        }
+    }
   </style>
 </head>
 <body>
@@ -569,14 +748,9 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
   <header class="main-header p-3 bg-white shadow-sm">
     <div class="container d-flex justify-content-between align-items-center">
         <a href="dashboard.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            <i class="fas fa-arrow-left me-2"></i><?php echo $translations[$lang]['dashboard']; ?>
         </a>
         <div class="d-flex align-items-center">
-            <div class="lang-selector me-3">
-                <a href="?lang=en" class="btn btn-outline-primary btn-sm">English</a>
-                <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
-                <a href="?lang=gu" class="btn btn-outline-primary btn-sm">ગુજરાતી</a>
-            </div>
             <div class="user-profile">
                 <span><?php echo $_SESSION['name']; ?></span>
             </div>
@@ -587,7 +761,10 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
   <!-- Main Content -->
   <main class="main-content">
     <div class="container">
-      <h1 class="mb-4"><?php echo $translations[$lang]['marketplace']; ?></h1>
+      <h1 class="marketplace-title">
+          <i class="fas fa-store me-2"></i>
+          <?php echo $translations[$lang]['marketplace']; ?>
+      </h1>
       
       <!-- Success/Error Messages -->
       <?php if (isset($_GET['success'])): ?>
@@ -610,128 +787,124 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
       <?php endif; ?>
 
       <!-- Dashboard Stats -->
-      <div class="dashboard-stats">
-          <div class="row">
-              <div class="col-md-3">
-                  <div class="stat-card primary">
-                      <h3><?php echo $result->num_rows; ?></h3>
-                      <p class="mb-0">Total Products</p>
-                  </div>
-              </div>
-              <div class="col-md-3">
-                  <div class="stat-card info">
-                      <h3><?php echo $activeListings; ?></h3>
-                      <p class="mb-0">Active Listings</p>
-                  </div>
-              </div>
-              <div class="col-md-3">
-                  <div class="stat-card warning">
-                      <h3>₹<?php echo number_format($totalValue, 2); ?></h3>
-                      <p class="mb-0">Total Inventory Value</p>
-                  </div>
-              </div>
-              <div class="col-md-3">
-                  <div class="stat-card danger">
-                      <h3><?php echo $lowStockItems; ?></h3>
-                      <p class="mb-0">Low Stock Items</p>
-                  </div>
-              </div>
+      <div class="stats-container">
+          <div class="stat-card active-listings">
+              <h3><?php echo $activeListings; ?></h3>
+              <p class="mb-0"><?php echo $translations[$lang]['active_listings']; ?></p>
+          </div>
+          <div class="stat-card total-value">
+              <h3>₹<?php echo number_format($totalValue, 2); ?></h3>
+              <p class="mb-0"><?php echo $translations[$lang]['total_value']; ?></p>
+          </div>
+          <div class="stat-card low-stock">
+              <h3><?php echo $lowStockItems; ?></h3>
+              <p class="mb-0"><?php echo $translations[$lang]['low_stock']; ?></p>
           </div>
       </div>
 
       <!-- Product Management Section -->
       <div class="card">
           <div class="card-header bg-white d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Manage Products</h5>
+              <h5 class="mb-0"><?php echo $translations[$lang]['manage_products']; ?></h5>
               <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                  <i class="fas fa-plus"></i> Add New Product
+                  <i class="fas fa-plus"></i> <?php echo $translations[$lang]['add_product']; ?>
               </button>
           </div>
           <div class="card-body">
               <!-- Filters and Search -->
               <div class="row mb-4">
                   <div class="col-md-4">
-                      <input type="text" class="form-control" placeholder="Search products...">
+                      <input type="text" class="form-control" placeholder="<?php echo $translations[$lang]['search_products']; ?>">
                   </div>
                   <div class="col-md-3">
                       <select class="form-select">
-                          <option value="">All Categories</option>
+                          <option value=""><?php echo $translations[$lang]['all_categories']; ?></option>
                           <?php 
-                          $categories->data_seek(0);
-                          while($category = $categories->fetch_assoc()): ?>
-                              <option value="<?php echo $category['category_id']; ?>">
-                                  <?php echo htmlspecialchars($category['name']); ?>
-                              </option>
-                          <?php endwhile; ?>
+                          if ($categories) {
+                              $categories->data_seek(0);
+                              while($category = $categories->fetch_assoc()): 
+                                  $translated_name = translateCategory($category['name'], $lang, $category_translations);
+                              ?>
+                                  <option value="<?php echo $category['category_id']; ?>">
+                                      <?php echo htmlspecialchars($translated_name); ?>
+                                  </option>
+                              <?php endwhile;
+                          }
+                          ?>
                       </select>
                   </div>
                   <div class="col-md-3">
                       <select class="form-select">
-                          <option value="all">All Status</option>
-                          <option value="available">Available</option>
-                          <option value="sold_out">Sold Out</option>
-                          <option value="removed">Removed</option>
+                          <option value="all"><?php echo $translations[$lang]['all_status']; ?></option>
+                          <option value="available"><?php echo $translations[$lang]['available']; ?></option>
+                          <option value="sold_out"><?php echo $translations[$lang]['sold_out']; ?></option>
+                          <option value="removed"><?php echo $translations[$lang]['removed']; ?></option>
                       </select>
                   </div>
                   <div class="col-md-2">
                       <select class="form-select">
-                          <option value="newest">Newest First</option>
-                          <option value="price_high">Price High</option>
-                          <option value="price_low">Price Low</option>
+                          <option value="newest"><?php echo $translations[$lang]['sort_newest']; ?></option>
+                          <option value="price_high"><?php echo $translations[$lang]['sort_price_high']; ?></option>
+                          <option value="price_low"><?php echo $translations[$lang]['sort_price_low']; ?></option>
                       </select>
                   </div>
               </div>
 
               <!-- Products Grid -->
-              <div class="row">
+              <div class="product-grid">
                   <?php foreach ($products as $product): ?>
-                  <div class="col-md-4 mb-4">
-                      <div class="product-card">
-                          <div class="position-relative">
-                              <img src="<?php echo $product['image_url'] ?? 'assets/default-product.jpg'; ?>" 
-                                   class="product-image" 
-                                   alt="<?php echo htmlspecialchars($product['name']); ?>">
-                              <?php if($product['is_organic']): ?>
-                                  <div class="organic-badge">
-                                      <i class="fas fa-leaf"></i> Organic
-                                  </div>
-                              <?php endif; ?>
+                  <div class="product-card">
+                      <div class="product-image-container">
+                          <img src="<?php echo htmlspecialchars($product['image_url'] ?? 'assets/default-product.jpg'); ?>" 
+                               class="product-image" 
+                               alt="<?php echo htmlspecialchars($product['name']); ?>">
+                          <?php if($product['is_organic']): ?>
+                              <div class="organic-badge">
+                                  <i class="fas fa-leaf me-1"></i>
+                                  <?php echo $translations[$lang]['is_organic']; ?>
+                              </div>
+                          <?php endif; ?>
+                      </div>
+                      <div class="product-details p-3">
+                          <h5 class="card-title mb-2"><?php echo htmlspecialchars($product['name']); ?></h5>
+                          <p class="text-muted mb-2">
+                              <?php echo $translations[$lang]['category']; ?>: 
+                              <?php 
+                              $translated_category = translateCategory($product['category_name'], $lang, $category_translations);
+                              echo htmlspecialchars($translated_category); 
+                              ?>
+                          </p>
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                              <div class="price-tag">₹<?php echo number_format($product['price_per_kg'], 2); ?>/<?php echo htmlspecialchars($product['unit'] ?? 'kg'); ?></div>
+                              <span class="status-badge <?php echo $product['status'] === 'available' ? 'available' : 'sold-out'; ?>">
+                                  <?php echo $translations[$lang][$product['status'] ?? 'available']; ?>
+                              </span>
                           </div>
-                          <div class="product-details p-3">
-                              <h5 class="card-title mb-2"><?php echo htmlspecialchars($product['name']); ?></h5>
-                              <p class="text-muted mb-2">Category: <?php echo htmlspecialchars($product['category_name']); ?></p>
-                              <div class="d-flex justify-content-between align-items-center mb-2">
-                                  <div class="price-tag">₹<?php echo number_format($product['price_per_kg'], 2); ?>/<?php echo htmlspecialchars($product['unit']); ?></div>
-                                  <span class="badge bg-<?php echo $product['status'] === 'available' ? 'success' : 'warning'; ?>">
-                                      <?php echo ucfirst($product['status']); ?>
-                                  </span>
+                          <div class="product-meta mb-3">
+                              <div class="mb-1">
+                                  <i class="fas fa-box me-2"></i>
+                                  <?php echo $translations[$lang]['quantity']; ?>: 
+                                  <?php 
+                                  $quantity = isset($product['quantity_available']) ? $product['quantity_available'] : 0;
+                                  echo number_format($quantity, 2); 
+                                  ?> 
+                                  <?php echo htmlspecialchars($product['unit'] ?? 'kg'); ?>
                               </div>
-                              <div class="product-meta mb-3">
-                                  <div class="mb-1">
-                                      <i class="fas fa-box me-2"></i>
-                                      Stock: <?php echo $product['quantity_available']; ?> <?php echo htmlspecialchars($product['unit']); ?>
-                                  </div>
-                                  <?php if($product['quantity_available'] < 10): ?>
-                                      <div class="stock-warning">
-                                          <i class="fas fa-exclamation-triangle me-1"></i>
-                                          Low stock alert!
-                                      </div>
-                                  <?php endif; ?>
-                              </div>
-                              <div class="d-flex gap-2">
-                                  <!-- Edit button now carries data attributes including category -->
-                                  <button class="btn btn-primary flex-grow-1 edit-button" 
-                                      data-product-id="<?php echo $product['product_id']; ?>" 
-                                      data-price="<?php echo $product['price_per_kg']; ?>" 
-                                      data-quantity="<?php echo $product['quantity_available']; ?>" 
-                                      data-status="<?php echo $product['status']; ?>"
-                                      data-category="<?php echo $product['category_id']; ?>">
-                                      <i class="fas fa-edit me-1"></i> Edit
-                                  </button>
-                                  <button class="btn btn-danger" onclick="confirmDelete(<?php echo $product['product_id']; ?>)">
-                                      <i class="fas fa-trash"></i>
-                                  </button>
-                              </div>
+                          </div>
+                          <div class="d-flex gap-2">
+                              <button class="btn btn-primary flex-grow-1 edit-button" 
+                                      data-product-id="<?php echo $product['product_id']; ?>"
+                                      data-price="<?php echo $product['price_per_kg']; ?>"
+                                      data-quantity="<?php echo isset($product['quantity_available']) ? $product['quantity_available'] : 0; ?>"
+                                      data-status="<?php echo $product['status'] ?? 'available'; ?>"
+                                      data-category="<?php echo $product['category_id']; ?>"
+                                      data-bs-toggle="modal" 
+                                      data-bs-target="#editProductModal">
+                                  <i class="fas fa-edit me-1"></i> <?php echo $translations[$lang]['edit']; ?>
+                              </button>
+                              <button class="btn btn-danger" onclick="confirmDelete(<?php echo $product['product_id']; ?>)">
+                                  <i class="fas fa-trash"></i> <?php echo $translations[$lang]['delete']; ?>
+                              </button>
                           </div>
                       </div>
                   </div>
@@ -747,37 +920,42 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add New Product</h5>
+                <h5 class="modal-title"><?php echo $translations[$lang]['add_product']; ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="addProductForm" action="process_product.php" method="POST" enctype="multipart/form-data">
                     <!-- Product Images -->
                     <div class="mb-3">
-                        <label class="form-label">Product Images</label>
+                        <label class="form-label"><?php echo $translations[$lang]['product_images']; ?></label>
                         <input type="file" class="form-control" name="product_images[]" multiple accept="image/*">
-                        <small class="text-muted">You can upload up to 5 images</small>
+                        <small class="text-muted"><?php echo $translations[$lang]['upload_up_to_5_images']; ?></small>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Product Name</label>
+                                <label class="form-label"><?php echo $translations[$lang]['product_name']; ?></label>
                                 <input type="text" class="form-control" name="name" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Category</label>
+                                <label class="form-label"><?php echo $translations[$lang]['category']; ?></label>
                                 <select class="form-select" name="category_id" required>
+                                    <option value=""><?php echo $translations[$lang]['select_category']; ?></option>
                                     <?php 
-                                    $categories->data_seek(0);
-                                    while ($category = $categories->fetch_assoc()): 
+                                    if ($categories) {
+                                        $categories->data_seek(0);
+                                        while ($category = $categories->fetch_assoc()): 
+                                            $translated_name = translateCategory($category['name'], $lang, $category_translations);
+                                        ?>
+                                            <option value="<?php echo $category['category_id']; ?>">
+                                                <?php echo htmlspecialchars($translated_name); ?>
+                                            </option>
+                                        <?php endwhile;
+                                    }
                                     ?>
-                                        <option value="<?php echo $category['category_id']; ?>">
-                                            <?php echo htmlspecialchars($category['name']); ?>
-                                        </option>
-                                    <?php endwhile; ?>
                                 </select>
                             </div>
                         </div>
@@ -786,7 +964,7 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Price per kg</label>
+                                <label class="form-label"><?php echo $translations[$lang]['price_per_kg']; ?></label>
                                 <div class="input-group">
                                     <span class="input-group-text">₹</span>
                                     <input type="number" step="0.01" class="form-control" name="price_per_kg" required>
@@ -795,17 +973,17 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Quantity Available</label>
+                                <label class="form-label"><?php echo $translations[$lang]['quantity']; ?></label>
                                 <input type="number" step="0.01" class="form-control" name="quantity_available" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Unit</label>
+                                <label class="form-label"><?php echo $translations[$lang]['unit']; ?></label>
                                 <select class="form-select" name="unit">
-                                    <option value="kg">Kg</option>
-                                    <option value="gram">Gram</option>
-                                    <option value="piece">Piece</option>
+                                    <option value="kg"><?php echo $translations[$lang]['unit_kg']; ?></option>
+                                    <option value="gram"><?php echo $translations[$lang]['unit_gram']; ?></option>
+                                    <option value="piece"><?php echo $translations[$lang]['unit_piece']; ?></option>
                                 </select>
                             </div>
                         </div>
@@ -814,20 +992,20 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Harvest Date</label>
+                                <label class="form-label"><?php echo $translations[$lang]['harvest_date']; ?></label>
                                 <input type="date" class="form-control" name="harvest_date">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Expiry Date</label>
+                                <label class="form-label"><?php echo $translations[$lang]['expiry_date']; ?></label>
                                 <input type="date" class="form-control" name="expiry_date">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Location</label>
+                        <label class="form-label"><?php echo $translations[$lang]['location']; ?></label>
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -835,7 +1013,7 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                             <input type="text" 
                                    class="form-control" 
                                    name="location" 
-                                   placeholder="Enter your location"
+                                   placeholder="<?php echo $translations[$lang]['enter_location']; ?>"
                                    required>
                         </div>
                     </div>
@@ -843,12 +1021,15 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                     <div class="mb-3">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" name="is_organic" value="1">
-                            <label class="form-check-label">This is an organic product</label>
+                            <label class="form-check-label">
+                                <i class="fas fa-leaf text-success me-1"></i>
+                                <?php echo $translations[$lang]['is_organic']; ?>
+                            </label>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Minimum Order Quantity</label>
+                        <label class="form-label"><?php echo $translations[$lang]['minimum_order_quantity']; ?></label>
                         <div class="input-group">
                             <input type="number" step="0.01" class="form-control" name="min_order_quantity">
                             <span class="input-group-text">kg</span>
@@ -856,21 +1037,21 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Delivery Options</label>
+                        <label class="form-label"><?php echo $translations[$lang]['delivery_options']; ?></label>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" name="delivery_options[]" value="pickup">
-                            <label class="form-check-label">Pickup Available</label>
+                            <label class="form-check-label"><?php echo $translations[$lang]['pickup_available']; ?></label>
                         </div>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" name="delivery_options[]" value="delivery">
-                            <label class="form-check-label">Delivery Available</label>
+                            <label class="form-check-label"><?php echo $translations[$lang]['delivery_available']; ?></label>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="addProductForm" class="btn btn-primary">Add Product</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo $translations[$lang]['close']; ?></button>
+                <button type="submit" form="addProductForm" class="btn btn-primary"><?php echo $translations[$lang]['add_product']; ?></button>
             </div>
         </div>
     </div>
@@ -881,7 +1062,7 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Product</h5>
+                <h5 class="modal-title"><?php echo $translations[$lang]['edit_product']; ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -894,23 +1075,23 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Price per kg</label>
+                                <label class="form-label"><?php echo $translations[$lang]['price_per_kg']; ?></label>
                                 <input type="number" step="0.01" class="form-control" name="price_per_kg" id="edit_price_per_kg" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Quantity Available</label>
+                                <label class="form-label"><?php echo $translations[$lang]['quantity_available']; ?></label>
                                 <input type="number" step="0.01" class="form-control" name="quantity_available" id="edit_quantity_available" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Status</label>
+                                <label class="form-label"><?php echo $translations[$lang]['status']; ?></label>
                                 <select class="form-select" name="status" id="edit_status">
-                                    <option value="available">Available</option>
-                                    <option value="sold_out">Sold Out</option>
-                                    <option value="removed">Hidden</option>
+                                    <option value="available"><?php echo $translations[$lang]['available']; ?></option>
+                                    <option value="sold_out"><?php echo $translations[$lang]['sold_out']; ?></option>
+                                    <option value="removed"><?php echo $translations[$lang]['removed']; ?></option>
                                 </select>
                             </div>
                         </div>
@@ -918,8 +1099,8 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="editProductForm" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo $translations[$lang]['close']; ?></button>
+                <button type="submit" form="editProductForm" class="btn btn-primary"><?php echo $translations[$lang]['save_changes']; ?></button>
             </div>
         </div>
     </div>
@@ -959,7 +1140,7 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
         button.addEventListener('click', function() {
             const productId = this.getAttribute('data-product-id');
             const price = this.getAttribute('data-price');
-            const quantity = this.getAttribute('data-quantity');
+            const quantity = this.getAttribute('data-quantity') || '0'; // Default to 0 if undefined
             const status = this.getAttribute('data-status');
             const category = this.getAttribute('data-category');
             
@@ -976,7 +1157,7 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
 
     // Delete product functionality
     function confirmDelete(productId) {
-        if(confirm('Are you sure you want to delete this product?')) {
+        if(confirm('<?php echo $translations[$lang]['confirm_delete']; ?>')) {
             fetch('delete_product.php', {
                 method: 'POST',
                 headers: {
