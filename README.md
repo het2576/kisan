@@ -1,6 +1,7 @@
-# Kisan.ai - Smart Farming Assistant
+# Kisan Mitra
+- Smart Farming Assistant
 
-A comprehensive farming management platform that helps farmers optimize their agricultural operations.
+A comprehensive farming management platform that helps farmers optimize their agricultural operations using AI and real-time market intelligence.
 
 ## Key Features
 
@@ -9,94 +10,88 @@ A comprehensive farming management platform that helps farmers optimize their ag
   - Hindi (हिंदी)
   - Gujarati (ગુજરાતી)
 
-- **Smart Navigation**
-  - Intuitive dashboard interface
-  - Easy back-to-dashboard navigation from all tools
-  - Consistent user experience across all pages
+- **Smart Navigation & User Experience**
+  - Intuitive and responsive dashboard
+  - Easy access to all tools and features
+  - Smooth navigation across modules
 
-- **AI-Powered Assistance**
-  - Personalized farming recommendations
-  - Crop selection guidance
-  - Soil analysis insights
-  - Weather-based planning
+- **AI-Powered Crop Disease Detection**
+  - Image-based plant disease identification
+  - Detection of common diseases like Rust, Powdery Mildew, and Leaf Blight
+  - Suggestions for treatment and prevention
+  - Fast and accurate results
 
-- **Market Intelligence**
+- **Agriculture News & Government Schemes**
+  - Latest farming news updates
+  - Government subsidy and scheme alerts
+  - AI-curated news for personalized insights
+  - Real-time updates from verified sources
+
+- **AI-Based Farming Assistance**
+  - Personalized crop selection guidance
+  - Soil health analysis
+  - Weather-based farming recommendations
+  - Pest and disease prevention tips
+
+- **Market Intelligence & Direct Selling**
   - Real-time commodity prices
-  - Market trends analysis
-  - Price predictions
-  - Gujarat market insights
-
-- **Inventory Management**
-  - Track farming supplies
-  - Expiry date monitoring
-  - Low stock alerts
-  - Usage history
-
-- **Tools Management**
-  - Equipment tracking
-  - Maintenance scheduling
-  - Usage status monitoring
-  - Tool availability tracking
-
-- **Marketplace**
   - Direct farmer-to-buyer connections
-  - Product listings
-  - Price negotiations
-  - Order management
+  - Product listings and order management
+  - Price negotiation and bidding system
+  - Market trends and price predictions
 
 ## Recent Updates
 
-1. **Enhanced Navigation**
-   - Added consistent back-to-dashboard navigation across all tools
-   - Improved user flow between different features
-   - Streamlined menu accessibility
+1. **Enhanced Navigation & UI Improvements**
+   - Improved dashboard accessibility and design
+   - Streamlined feature integration
+   - Consistent UI across all modules
 
-2. **Improved Market Insights**
-   - Real-time price updates from Gujarat markets
-   - Advanced search functionality
-   - Price comparison tools
-   - Historical price tracking
+2. **AI-Powered Crop Disease Detection**
+   - Upgraded accuracy in disease identification
+   - Enhanced image processing algorithm
+   - More comprehensive disease database
 
-3. **Expanded Tool Management**
-   - New tool status tracking
-   - Improved inventory interface
-   - Better organization features
-   - Status toggle functionality
+3. **Agriculture News & Government Scheme Updates**
+   - Integrated real-time news API for agriculture updates
+   - Automated filtering for relevant government schemes
+   - Improved recommendation system
 
-4. **AI Assistant Upgrades**
-   - More accurate farming recommendations
-   - Enhanced multi-language support
-   - Improved response quality
-   - Better context understanding
+4. **Market Intelligence & Direct Selling**
+   - Real-time price updates from multiple sources
+   - Improved buyer-seller matchmaking algorithm
+   - Advanced product listing and tracking
 
 ## Technical Stack
 
-- Frontend: HTML5, CSS3, JavaScript, Bootstrap 5
-- Backend: PHP 8.0+
-- Database: MySQL
-- AI Integration: WideCanvas AI API
-- Real-time Data: Data.gov.in API
+- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5
+- **Backend:** PHP 8.0+
+- **Database:** MySQL
+- **AI Integration:** Custom AI Model (Image Processing for Disease Detection)
+- **APIs Used:** Data.gov.in (Market Prices), NewsAPI (Agriculture News)
 
-## Installation
+## Installation Guide
 
-1. Clone the repository
-2. Import `kisan_db.sql` to your MySQL server
-3. Configure database connection in `db_connect.php`
-4. Deploy to your PHP server
-5. Access through web browser
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/kisan-ai.git
+   ```
+2. Import `kisan_db.sql` to your MySQL server.
+3. Configure database connection in `db_connect.php`.
+4. Deploy the project on your PHP server.
+5. Access the platform via your web browser.
 
-## Requirements
+## System Requirements
 
 - PHP 8.0 or higher
 - MySQL 5.7 or higher
-- Modern web browser
-- Internet connection for API features
+- A modern web browser
+- Internet connection for API-based features
 
 ## Contributing
 
-We welcome contributions! Please read our contributing guidelines before submitting pull requests.
+We welcome contributions! Feel free to submit pull requests and report issues in the repository.
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
