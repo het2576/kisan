@@ -24,7 +24,8 @@ $translations = [
         'date' => 'Date',
         'rainfall' => 'Rainfall',
         'description' => 'Description',
-        'temp_rainfall_forecast' => 'Temperature and Rainfall Forecast'
+        'temp_rainfall_forecast' => 'Temperature and Rainfall Forecast',
+        'dashboard' => 'Dashboard'
     ],
     'hi' => [
         'weather_forecast' => 'मौसम का पूर्वानुमान',
@@ -39,7 +40,8 @@ $translations = [
         'date' => 'तारीख',
         'rainfall' => 'वर्षा',
         'description' => 'विवरण',
-        'temp_rainfall_forecast' => 'तापमान और वर्षा का पूर्वानुमान'
+        'temp_rainfall_forecast' => 'तापमान और वर्षा का पूर्वानुमान',
+        'dashboard' => 'डैशबोर्ड'
     ],
     'gu' => [
         'weather_forecast' => 'હવામાન આગાહી',
@@ -54,7 +56,8 @@ $translations = [
         'date' => 'તારીખ',
         'rainfall' => 'વરસાદ',
         'description' => 'વર્ણન',
-        'temp_rainfall_forecast' => 'તાપમાન અને વરસાદની આગાહી'
+        'temp_rainfall_forecast' => 'તાપમાન અને વરસાદની આગાહી',
+        'dashboard' => 'ડેશબોર્ડ'
     ]
 ];
 
@@ -187,9 +190,43 @@ $result = $stmt->get_result();
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .back-button {
+            background: transparent;
+            border: 2px solid #303f9f;
+            color: #303f9f;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .back-button:hover {
+            background: #303f9f;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(48, 63, 159, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .back-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Back to Dashboard Button -->
+    <div class="container mt-3">
+        <a href="dashboard.php" class="btn btn-outline-primary back-button">
+            <i class="fas fa-arrow-left me-2"></i>
+            <?php echo $translations[$lang]['dashboard']; ?>
+        </a>
+    </div>
+
     <div class="container py-5">
         <h1 class="text-center mb-4"><?php echo $translations[$lang]['weather_forecast']; ?></h1>
         
