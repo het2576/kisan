@@ -103,3 +103,35 @@ INSERT INTO notifications (user_id, type, title, message, is_read, language) VAL
 (1, 'inventory', 'સ્ટોક એલર્ટ', 'તમારો ઘઉંના બીજનો સ્ટોક ઓછો થઈ રહ્યો છે', 0, 'gu'),
 (1, 'market', 'ભાવ અપડેટ', 'કપાસના ભાવમાં 5% નો વધારો થયો છે', 0, 'gu'),
 (1, 'weather', 'હવામાન એલર્ટ', 'આવતીકાલે ભારે વરસાદની આગાહી', 0, 'gu');
+
+-- Create products table
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    seller_id INT NOT NULL,
+    category_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    price_per_kg DECIMAL(10,2) NOT NULL,
+    quantity_available DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(50) DEFAULT 'kg',
+    harvest_date DATE DEFAULT NULL,
+    expiry_date DATE DEFAULT NULL,
+    is_organic TINYINT(1) DEFAULT 0,
+    location VARCHAR(255) DEFAULT NULL,
+    min_order_quantity DECIMAL(10,2) DEFAULT NULL,
+    delivery_options VARCHAR(255) DEFAULT NULL,
+    status ENUM('available', 'sold_out', 'removed') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (seller_id) REFERENCES users(user_id),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Create product_images table
+CREATE TABLE product_images (
+    image_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    is_primary TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
