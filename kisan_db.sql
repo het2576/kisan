@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price_per_kg DECIMAL(10,2) NOT NULL,
-    quantity_available DECIMAL(10,2) NOT NULL,
+    quantity_available DECIMAL(10,2) NOT NULL DEFAULT 0,
     unit VARCHAR(20) DEFAULT 'kg',
     harvest_date DATE,
     expiry_date DATE,

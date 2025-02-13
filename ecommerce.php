@@ -14,7 +14,7 @@ if (!isset($_GET['product_id'])) {
 
 $product_id = intval($_GET['product_id']);
 
-// Fetch product details (assumes the "users" table holds the farmer’s contact info).
+// Fetch product details (assumes the "users" table holds the farmer's contact info).
 $stmt = $pdo->prepare("SELECT p.*, u.name AS farmer_name, u.contact_info AS farmer_contact 
                        FROM products p 
                        JOIN users u ON p.farmer_id = u.id 
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $consumer_name    = $_SESSION['name'];
     $consumer_contact = isset($_SESSION['contact_info']) ? $_SESSION['contact_info'] : 'Not provided';
 
-    // Display confirmation with both parties’ contact info.
+    // Display confirmation with both parties' contact info.
     echo "<div class='container mt-5'>";
     echo "<h2>Order Confirmed</h2>";
     echo "<p>Thank you! Your order has been placed.</p>";
@@ -91,6 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
       </div>
     </div>
+  </div>
+  <!-- Back to Dashboard Button -->
+  <div class="container mt-3">
+    <a href="dashboard.php" class="btn btn-outline-success mb-3">
+      <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

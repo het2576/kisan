@@ -244,23 +244,18 @@ function translateCategory($categoryName, $lang, $translations) {
 // Include the database connection file (ensure that db_connect.php defines $conn)
 require_once 'db_connect.php';
 
-// Update the query to be more explicit
+// Update the query to ensure quantity_available is always set
 $query = "
     SELECT 
         p.product_id,
-        p.seller_id,
-        p.category_id,
         p.name,
         p.description,
         p.price_per_kg,
-        IFNULL(p.quantity_available, 0) as quantity_available,
-        IFNULL(p.unit, 'kg') as unit,
-        p.harvest_date,
-        p.expiry_date,
-        p.farming_method,
-        IFNULL(p.is_organic, 0) as is_organic,
-        p.location,
-        IFNULL(p.status, 'available') as status,
+        COALESCE(p.quantity_available, 0) as quantity_available,
+        p.unit,
+        p.status,
+        p.category_id,
+        p.is_organic,
         c.name as category_name,
         u.name as seller_name,
         u.phone_number as seller_phone,
@@ -274,35 +269,28 @@ $query = "
 
 try {
     $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        throw new Exception("Prepare failed: " . $conn->error);
-    }
-
     $stmt->bind_param("i", $_SESSION['user_id']);
-    if (!$stmt->execute()) {
-        throw new Exception("Execute failed: " . $stmt->error);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    // Initialize products array
+    $products = [];
+    
+    // Process each row with proper initialization
+    while ($row = $result->fetch_assoc()) {
+        // Ensure quantity_available is set and is numeric
+        $row['quantity_available'] = is_null($row['quantity_available']) ? 0 : floatval($row['quantity_available']);
+        $products[] = $row;
     }
 
-    $result = $stmt->get_result();
-    $products = $result->fetch_all(MYSQLI_ASSOC);
-
-    // Process products to ensure all required fields have default values
-    $products = array_map(function($product) {
-        return array_merge([
-            'quantity_available' => 0,
-            'unit' => 'kg',
-            'status' => 'available',
-            'is_organic' => 0,
-            'image_url' => 'assets/default-product.jpg'
-        ], $product);
-    }, $products);
-
-    // Add debug output
-    error_log("Query executed successfully");
-    error_log("Number of products found: " . count($products));
 } catch (Exception $e) {
-    error_log("Error in marketplace query: " . $e->getMessage());
+    error_log("Database error: " . $e->getMessage());
     $products = [];
+}
+
+// Update the display section where quantity is shown
+foreach ($products as $key => $product) {
+    $products[$key]['quantity_available'] = floatval($product['quantity_available'] ?? 0);
 }
 
 // Calculate statistics
@@ -885,7 +873,7 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                                   <i class="fas fa-box me-2"></i>
                                   <?php echo $translations[$lang]['quantity']; ?>: 
                                   <?php 
-                                  $quantity = isset($product['quantity_available']) ? $product['quantity_available'] : 0;
+                                  $quantity = floatval($product['quantity_available'] ?? 0);
                                   echo number_format($quantity, 2); 
                                   ?> 
                                   <?php echo htmlspecialchars($product['unit'] ?? 'kg'); ?>
@@ -893,11 +881,11 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                           </div>
                           <div class="d-flex gap-2">
                               <button class="btn btn-primary flex-grow-1 edit-button" 
-                                      data-product-id="<?php echo $product['product_id']; ?>"
-                                      data-price="<?php echo $product['price_per_kg']; ?>"
-                                      data-quantity="<?php echo isset($product['quantity_available']) ? $product['quantity_available'] : 0; ?>"
-                                      data-status="<?php echo $product['status'] ?? 'available'; ?>"
-                                      data-category="<?php echo $product['category_id']; ?>"
+                                      data-product-id="<?php echo htmlspecialchars($product['product_id']); ?>"
+                                      data-price="<?php echo htmlspecialchars(number_format($product['price_per_kg'], 2)); ?>"
+                                      data-quantity="<?php echo htmlspecialchars(number_format(floatval($product['quantity_available'] ?? 0), 2)); ?>"
+                                      data-status="<?php echo htmlspecialchars($product['status'] ?? 'available'); ?>"
+                                      data-category="<?php echo htmlspecialchars($product['category_id']); ?>"
                                       data-bs-toggle="modal" 
                                       data-bs-target="#editProductModal">
                                   <i class="fas fa-edit me-1"></i> <?php echo $translations[$lang]['edit']; ?>
@@ -1058,11 +1046,11 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
   </div>
   
   <!-- Edit Product Modal (Modified) -->
-  <div class="modal fade" id="editProductModal" tabindex="-1">
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><?php echo $translations[$lang]['edit_product']; ?></h5>
+                <h5 class="modal-title"><?php echo isset($translations[$lang]['edit_product']) ? $translations[$lang]['edit_product'] : 'Edit Product'; ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -1075,23 +1063,23 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $translations[$lang]['price_per_kg']; ?></label>
+                                <label class="form-label"><?php echo isset($translations[$lang]['price_per_kg']) ? $translations[$lang]['price_per_kg'] : 'Price per kg'; ?></label>
                                 <input type="number" step="0.01" class="form-control" name="price_per_kg" id="edit_price_per_kg" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $translations[$lang]['quantity_available']; ?></label>
+                                <label class="form-label"><?php echo isset($translations[$lang]['quantity_available']) ? $translations[$lang]['quantity_available'] : 'Quantity Available'; ?></label>
                                 <input type="number" step="0.01" class="form-control" name="quantity_available" id="edit_quantity_available" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $translations[$lang]['status']; ?></label>
+                                <label class="form-label"><?php echo isset($translations[$lang]['status']) ? $translations[$lang]['status'] : 'Status'; ?></label>
                                 <select class="form-select" name="status" id="edit_status">
-                                    <option value="available"><?php echo $translations[$lang]['available']; ?></option>
-                                    <option value="sold_out"><?php echo $translations[$lang]['sold_out']; ?></option>
-                                    <option value="removed"><?php echo $translations[$lang]['removed']; ?></option>
+                                    <option value="available"><?php echo isset($translations[$lang]['available']) ? $translations[$lang]['available'] : 'Available'; ?></option>
+                                    <option value="sold_out"><?php echo isset($translations[$lang]['sold_out']) ? $translations[$lang]['sold_out'] : 'Sold Out'; ?></option>
+                                    <option value="removed"><?php echo isset($translations[$lang]['removed']) ? $translations[$lang]['removed'] : 'Removed'; ?></option>
                                 </select>
                             </div>
                         </div>
@@ -1099,78 +1087,135 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo $translations[$lang]['close']; ?></button>
-                <button type="submit" form="editProductForm" class="btn btn-primary"><?php echo $translations[$lang]['save_changes']; ?></button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo isset($translations[$lang]['close']) ? $translations[$lang]['close'] : 'Close'; ?></button>
+                <button type="submit" form="editProductForm" class="btn btn-primary"><?php echo isset($translations[$lang]['save_changes']) ? $translations[$lang]['save_changes'] : 'Save Changes'; ?></button>
             </div>
         </div>
     </div>
 </div>
-  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
 
-    // Form validation for Add Product
-    document.getElementById('addProductForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      var requiredFields = this.querySelectorAll('[required]');
-      var isValid = true;
-      
-      requiredFields.forEach(function(field) {
-        if (!field.value) {
-          isValid = false;
-          field.classList.add('is-invalid');
-        } else {
-          field.classList.remove('is-invalid');
-        }
-      });
+        // Cache DOM elements
+        const addProductForm = document.getElementById('addProductForm');
+        const editProductForm = document.getElementById('editProductForm');
+        const editModal = document.getElementById('editProductModal');
+        
+        // Initialize Bootstrap modal
+        const editModalInstance = new bootstrap.Modal(editModal);
 
-      if (isValid) {
-        this.submit();
-      }
-    });
+        // Form validation for Add Product
+        if (addProductForm) {
+            addProductForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const requiredFields = this.querySelectorAll('[required]');
+                const isValid = Array.from(requiredFields).every(field => {
+                    const isFieldValid = field.value.trim() !== '';
+                    field.classList.toggle('is-invalid', !isFieldValid);
+                    return isFieldValid;
+                });
 
-    // Edit Button Event Listener: Populate and Show Edit Modal
-    document.querySelectorAll('.edit-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            const price = this.getAttribute('data-price');
-            const quantity = this.getAttribute('data-quantity') || '0'; // Default to 0 if undefined
-            const status = this.getAttribute('data-status');
-            const category = this.getAttribute('data-category');
-            
-            document.getElementById('edit_product_id').value = productId;
-            document.getElementById('edit_price_per_kg').value = price;
-            document.getElementById('edit_quantity_available').value = quantity;
-            document.getElementById('edit_status').value = status;
-            document.getElementById('edit_category_id').value = category;
-            
-            var editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
-            editModal.show();
-        });
-    });
-
-    // Delete product functionality
-    function confirmDelete(productId) {
-        if(confirm('<?php echo $translations[$lang]['confirm_delete']; ?>')) {
-            fetch('delete_product.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'product_id=' + productId
-            })
-            .then(response => response.text())
-            .then(data => {
-                location.reload();
+                if (isValid) {
+                    this.submit();
+                }
             });
         }
-    }
+
+        // Edit Button Event Listeners
+        const editButtons = document.querySelectorAll('.edit-button');
+        editButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get data with defaults
+                const data = {
+                    productId: this.dataset.productId || '0',
+                    price: this.dataset.price || '0.00',
+                    quantity: this.dataset.quantity || '0.00',
+                    status: this.dataset.status || 'available',
+                    category: this.dataset.category || '0'
+                };
+
+                // Set form values
+                document.getElementById('edit_product_id').value = data.productId;
+                document.getElementById('edit_price_per_kg').value = parseFloat(data.price).toFixed(2);
+                document.getElementById('edit_quantity_available').value = parseFloat(data.quantity).toFixed(2);
+                document.getElementById('edit_status').value = data.status;
+                document.getElementById('edit_category_id').value = data.category;
+            });
+        });
+
+        // Handle modal cleanup on close
+        editModal.addEventListener('hidden.bs.modal', function () {
+            // Reset form
+            editProductForm.reset();
+            // Remove any validation classes
+            const fields = editProductForm.querySelectorAll('.form-control, .form-select');
+            fields.forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+        });
+
+        // Handle form submission
+        if (editProductForm) {
+            editProductForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    const formData = new FormData(this);
+                    const response = await fetch('update_product.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        // Close modal
+                        editModalInstance.hide();
+                        // Reload page after successful update
+                        window.location.reload();
+                    } else {
+                        throw new Error('Update failed');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to update product. Please try again.');
+                }
+            });
+        }
+
+        // Delete product functionality
+        window.confirmDelete = function(productId) {
+            if (confirm(document.querySelector('[data-delete-confirm]').dataset.deleteConfirm)) {
+                fetch('delete_product.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'product_id=' + productId
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        throw new Error('Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete product. Please try again.');
+                });
+            }
+        };
+
+        // Add data attribute for delete confirmation message
+        document.body.setAttribute('data-delete-confirm', 
+            '<?php echo addslashes($translations[$lang]['confirm_delete']); ?>');
+    });
   </script>
 </body>
 </html>

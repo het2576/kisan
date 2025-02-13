@@ -21,7 +21,8 @@ $translations = [
         'no_data' => 'No data available for this commodity.',
         'last_updated' => 'Last Updated',
         'showing_results' => 'Showing results for',
-        'load_more' => 'Load More'
+        'load_more' => 'Load More',
+        'dashboard' => 'Dashboard'
     ],
     'hi' => [
         'market_insights' => 'बाजार अंतर्दृष्टि',
@@ -34,7 +35,8 @@ $translations = [
         'no_data' => 'इस वस्तु के लिए कोई डेटा उपलब्ध नहीं है।',
         'last_updated' => 'अंतिम अपडेट',
         'showing_results' => 'परिणाम दिखाए जा रहे हैं',
-        'load_more' => 'और लोड करें'
+        'load_more' => 'और लोड करें',
+        'dashboard' => 'डैशबोर्ड'
     ],
     'gu' => [
         'market_insights' => 'બજાર માહિતી',
@@ -47,7 +49,8 @@ $translations = [
         'no_data' => 'આ કોમોડિટી માટે કોઈ માહિતી ઉપલબ્ધ નથી.',
         'last_updated' => 'છેલ્લે અપડેટ કર્યું',
         'showing_results' => 'પરિણામો',
-        'load_more' => 'વધુ લોડ કરો'
+        'load_more' => 'વધુ લોડ કરો',
+        'dashboard' => 'ડેશબોર્ડ'
     ]
 ];
 
@@ -337,6 +340,13 @@ $cropPrices = getCommodityPrices($apiKey, $searchCommodity, $page);
     </style>
 </head>
 <body>
+    <!-- Back to Dashboard Button -->
+    <div class="container mt-3">
+        <a href="dashboard.php" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i><?php echo $translations[$lang]['dashboard']; ?>
+        </a>
+    </div>
+
     <div class="container py-5">
         <div class="custom-container">
             <div class="title-section">

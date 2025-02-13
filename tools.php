@@ -49,7 +49,8 @@ $translations = [
         'status' => 'Status',
         'actions' => 'Actions',
         'no_tools' => 'No tools added yet. Add your first tool!',
-        'toggle_status' => 'Toggle Status'
+        'toggle_status' => 'Toggle Status',
+        'dashboard' => 'Dashboard'
     ],
     'gu' => [
         'automated_tool_crafting' => 'સ્વચાલિત સાધન ક્રાફ્ટિંગ',
@@ -61,7 +62,8 @@ $translations = [
         'status' => 'સ્થિતિ',
         'actions' => 'ક્રિયાઓ',
         'no_tools' => 'હજુ સુધી કોઈ સાધનો ઉમેર્યા નથી. તમારું પ્રથમ સાધન ઉમેરો!',
-        'toggle_status' => 'સ્થિતિ બદલો'
+        'toggle_status' => 'સ્થિતિ બદલો',
+        'dashboard' => 'ડેશબોર્ડ'
     ]
 ];
 
@@ -120,6 +122,13 @@ $t = $translations[$lang];
     </style>
 </head>
 <body>
+    <!-- Back to Dashboard Button -->
+    <div class="container mt-3">
+        <a href="dashboard.php" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i><?php echo $t['dashboard']; ?>
+        </a>
+    </div>
+
     <div class="container py-5">
         <h1 class="text-center mb-4 text-primary">
             <i class="bi bi-tools"></i> 

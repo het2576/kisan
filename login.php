@@ -115,18 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2F855A;
-            --secondary-color: #276749;
-            --accent-color: #E6FFFA;
-            --text-color: #2D3748;
-            --border-color: #E2E8F0;
-            --error-color: #E53E3E;
-        }
-
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #3498db, #2ecc71);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -135,13 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .login-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             max-width: 450px;
-            padding: 2rem;
+            width: 100%;
+            padding: 2.5rem;
         }
 
         .login-header {
@@ -150,118 +142,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .login-header h1 {
-            color: var(--primary-color);
-            font-size: 2rem;
+            font-size: 2.25rem;
+            color: #1a202c;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
         .login-header p {
-            color: var(--text-color);
+            color: #4a5568;
             opacity: 0.8;
         }
 
         .form-control {
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-bottom: 1rem;
         }
 
         .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+            border-color: #0d6efd;
         }
 
-        .form-label {
-            color: var(--text-color);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
+        .btn-login {
+            background: linear-gradient(45deg, #0d6efd, #0099ff);
             border: none;
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
+            padding: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            width: 100%;
             color: white;
-            transform: translateY(-2px);
-        }
-
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .alert {
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .divider span {
-            padding: 0 1rem;
-            color: var(--text-color);
-            opacity: 0.5;
-        }
-
-        .social-login {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .social-btn {
-            flex: 1;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            cursor: pointer;
+            border-radius: 12px;
+            margin-bottom: 1rem;
             transition: all 0.3s ease;
         }
 
-        .social-btn:hover {
-            background-color: var(--accent-color);
-            border-color: var(--primary-color);
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
         }
 
         .footer-links {
@@ -270,89 +193,89 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .footer-links a {
-            color: var(--primary-color);
+            color: #0d6efd;
             text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s ease;
         }
 
         .footer-links a:hover {
-            color: var(--secondary-color);
             text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+        }
+
+        .input-group-text {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            border-right: none;
+            color: #4a5568;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+            margin-bottom: 0;
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: #0d6efd;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>Welcome to Kisan.ai</h1>
-            <p>Login to access your account</p>
+            <h1>Welcome Back</h1>
+            <p>Login to your account</p>
         </div>
 
         <?php if (isset($error)): ?>
-            <div class="alert alert-danger" role="alert">
+            <div class="alert" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i>
                 <?php echo $error; ?>
             </div>
         <?php endif; ?>
 
         <form method="POST" action="">
-            <div class="mb-4">
-                <label for="email" class="form-label">Email Address</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-envelope"></i>
-                    </span>
-                    <input type="email" class="form-control" id="email" name="email" required 
-                           placeholder="Enter your email">
-                </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control" name="email" required 
+                       placeholder="Enter your email">
             </div>
             
-            <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <input type="password" class="form-control" id="password" name="password" required 
-                           placeholder="Enter your password">
-                </div>
+            <div class="input-group mb-4">
+                <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control" name="password" required 
+                       placeholder="Enter your password">
             </div>
             
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="remember">
-                    <label class="form-check-label" for="remember">Remember me</label>
-                </div>
-                <a href="forgot-password.php" class="text-decoration-none">Forgot password?</a>
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-100 mb-3">
+            <button type="submit" class="btn btn-login">
                 <i class="fas fa-sign-in-alt me-2"></i>Login
             </button>
         </form>
 
-        <div class="divider">
-            <span>or continue with</span>
-        </div>
-
-        <div class="social-login">
-            <button class="social-btn">
-                <i class="fab fa-google"></i>
-                Google
-            </button>
-            <button class="social-btn">
-                <i class="fab fa-facebook-f"></i>
-                Facebook
-            </button>
-        </div>
-
         <div class="footer-links">
             <p class="mb-0">Don't have an account? 
-                <a href="register.php" class="fw-bold">Create Account</a>
+                <a href="register.php">Create Account</a>
             </p>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
