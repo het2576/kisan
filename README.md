@@ -1,5 +1,4 @@
-# Kisan Mitra
-- Smart Farming Assistant
+# Kisan Mitra - Smart Farming Assistant
 
 A comprehensive farming management platform that helps farmers optimize their agricultural operations using AI and real-time market intelligence.
 
