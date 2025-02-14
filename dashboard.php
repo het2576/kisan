@@ -58,7 +58,10 @@ $translations = [
         'news' => 'Agricultural News',
         'disease_detection' => 'Crop Disease Detection',
         'disease_detection_desc' => 'Upload crop images to detect diseases and get treatment recommendations',
-        'marketplace'      => 'Marketplace'  // <-- Add this key
+        'marketplace'      => 'Marketplace',
+        'edit_profile' => 'Edit Profile',
+        'view_profile' => 'View Profile',
+        'profile_settings' => 'Profile Settings'
     ],
     'hi' => [
         'welcome' => 'स्वागत है',
@@ -99,7 +102,10 @@ $translations = [
         'news' => 'कृषि समाचार',
         'disease_detection' => 'फसल रोग पहचान',
         'disease_detection_desc' => 'रोगों का पता लगाने और उपचार की सिफारिशें प्राप्त करने के लिए फसल की छवियां अपलोड करें',
-        'marketplace'      => 'मार्केटप्लेस' // <-- Add this key
+        'marketplace'      => 'मार्केटप्लेस',
+        'edit_profile' => 'प्रोफ़ाइल संपादित करें',
+        'view_profile' => 'प्रोफ़ाइल देखें',
+        'profile_settings' => 'प्रोफ़ाइल सेटिंग्स'
     ],
     'gu' => [
         'welcome' => 'સ્વાગત છે',
@@ -140,7 +146,10 @@ $translations = [
         'news' => 'કૃષિ સમાચાર',
         'disease_detection' => 'પાક રોગ શોધ',
         'disease_detection_desc' => 'રોગોનું નિદાન કરવા અને સારવારની ભલામણો મેળવવા માટે પાકની છબીઓ અપલોડ કરો',
-        'marketplace'      => 'માર્કેટપ્લેસ' // <-- Add this key
+        'marketplace'      => 'માર્કેટપ્લેસ',
+        'edit_profile' => 'પ્રોફાઇલ સંપાદિત કરો',
+        'view_profile' => 'પ્રોફાઇલ જુઓ',
+        'profile_settings' => 'પ્રોફાઇલ સેટિંગ્સ'
     ]
 ];
 ?>
@@ -483,45 +492,93 @@ $translations = [
             text-align: center;
         }
 
-        /* Dropdown styles */
-        .dropdown-menu {
-            background: #1a1c23;
-            border: none;
-            border-radius: 6px;
-            margin-top: 0;
-            padding: 0.5rem 0;
-            transform-origin: top;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            transform: scaleY(0);
-            opacity: 0;
-            width: 100%;
-            position: static;
-        }
-
-        .dropdown-menu.show {
-            transform: scaleY(1);
-            opacity: 1;
-        }
-
-        .dropdown-item {
+        /* Dropdown styles to match other links */
+        .nav-links .dropdown-toggle {
             color: rgba(255,255,255,0.8);
             padding: 0.6rem 0.8rem;
-            font-size: 0.8rem;
+            margin: 0.1rem 0;
+            border-radius: 6px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             text-decoration: none;
+            font-weight: 500;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            width: 100%;
         }
 
-        .dropdown-item i {
-            margin-right: 8px;
-            width: 16px;
-        }
-
-        .dropdown-item:hover {
+        .nav-links .dropdown-toggle:hover {
             background: rgba(255,255,255,0.1);
             color: #ffffff;
             transform: translateX(5px);
+        }
+
+        .nav-links .dropdown-toggle i:first-child {
+            margin-right: 8px;
+            width: 16px;
+            font-size: 0.9rem;
+        }
+
+        .nav-links .dropdown-toggle i.fa-chevron-down {
+            margin-left: auto;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links .dropdown.show .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown menu styles */
+        .nav-links .dropdown-menu {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0.1rem 0;
+            width: 100%;
+        }
+
+        .nav-links .dropdown-item {
+            color: rgba(255,255,255,0.8);
+            padding: 0.6rem 0.8rem 0.6rem 2.3rem;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-weight: 500;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links .dropdown-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            transform: translateX(5px);
+        }
+
+        .nav-links .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+            font-size: 0.9rem;
+        }
+
+        .nav-links .dropdown-item.active {
+            background: #3182ce;
+            color: #ffffff;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .nav-links .dropdown-toggle,
+            .nav-links .dropdown-item {
+                padding-left: 1.2rem;
+            }
+            
+            .nav-links .dropdown-item {
+                padding-left: 2.7rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -738,6 +795,232 @@ $translations = [
                 display: none;
             }
         }
+
+        /* Profile Dropdown Styles */
+        .profile-dropdown {
+            min-width: 280px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        .user-profile {
+            position: relative;
+        }
+
+        .profile-info {
+            background: #f8fafb;
+            padding: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+
+        .info-item i {
+            width: 24px;
+            text-align: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            color: #4CAF50;
+        }
+
+        .info-item span {
+            font-size: 0.9rem;
+            color: #2d3748;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .dropdown-item {
+            padding: 12px 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: #f8fafb;
+            color: #4CAF50;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .profile-dropdown {
+                position: fixed !important;
+                top: 60px !important;
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+                transform: none !important;
+                margin: 0 !important;
+                max-height: calc(100vh - 70px);
+                overflow-y: auto;
+                border-radius: 8px !important;
+            }
+
+            .user-profile {
+                position: static !important;
+            }
+
+            .dropdown-menu.show {
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+            }
+
+            .profile-header {
+                padding: 15px !important;
+            }
+
+            .info-item {
+                padding: 10px 0;
+            }
+
+            .info-item span {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            /* Add backdrop overlay */
+            .dropdown-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9998;
+            }
+
+            /* Ensure header stays above dropdown */
+            .main-header {
+                position: relative;
+                z-index: 10000;
+            }
+        }
+
+        /* Small screen styles */
+        @media (max-width: 576px) {
+            .profile-dropdown {
+                top: 50px !important;
+            }
+
+            .profile-info {
+                padding: 12px;
+            }
+
+            .info-item {
+                padding: 8px 0;
+            }
+
+            .dropdown-item {
+                padding: 10px 12px;
+            }
+        }
+
+        /* Sidebar dropdown styles */
+        .nav-links .dropdown {
+            width: 100%;
+        }
+
+        .nav-links .dropdown-menu {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            position: static !important;
+            transform: none !important;
+            box-shadow: none;
+            padding-left: 20px;
+        }
+
+        .nav-links .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 20px;
+            color: #f1f5f9;
+            text-decoration: none;
+            gap: 12px;
+        }
+
+        .nav-links .dropdown-toggle:hover,
+        .nav-links .dropdown-toggle:focus {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-links .dropdown-toggle i:first-child {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-links .dropdown-toggle i.fa-chevron-down {
+            margin-left: auto;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links .dropdown.show .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .nav-links .dropdown-item {
+            padding: 10px 15px 10px 52px;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: inherit;
+        }
+
+        .nav-links .dropdown-item:hover,
+        .nav-links .dropdown-item:focus {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Active state styles */
+        .nav-links .dropdown-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-links .dropdown-toggle.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .nav-links .dropdown-toggle {
+                padding: 12px 25px;
+            }
+            
+            .nav-links .dropdown-item {
+                padding: 10px 15px 10px 57px;
+            }
+        }
     </style>
     <script>
     // Check for notifications on page load
@@ -773,23 +1056,27 @@ $translations = [
         <!-- Tools Dropdown -->
         <div class="dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                <i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?>
+                <i class="fas fa-tools"></i>
+                <?php echo $translations[$lang]['tools']; ?>
                 <i class="fas fa-chevron-down"></i>
             </a>
             <ul class="dropdown-menu">
                 <li>
                     <a class="dropdown-item" href="inventory.php">
-                        <i class="fas fa-box"></i><?php echo $translations[$lang]['inventory']; ?>
+                        <i class="fas fa-box"></i>
+                        <?php echo $translations[$lang]['inventory']; ?>
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" href="tools.php">
-                        <i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?>
+                        <i class="fas fa-tools"></i>
+                        <?php echo $translations[$lang]['tools']; ?>
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" href="crop_profit_calc.php">
-                        <i class="fas fa-calculator"></i><?php echo isset($translations[$lang]['profit_calc']) ? $translations[$lang]['profit_calc'] : 'Profit Calculator'; ?>
+                        <i class="fas fa-calculator"></i>
+                        <?php echo $translations[$lang]['profit_calc']; ?>
                     </a>
                 </li>
             </ul>
@@ -853,11 +1140,56 @@ $translations = [
                 <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
                 <a href="?lang=gu" class="btn btn-outline-primary btn-sm">ગુજરાતી</a>
             </div>
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <?php echo substr($_SESSION['name'], 0, 1); ?>
+            <div class="user-profile dropdown">
+                <div class="d-flex align-items-center" role="button" data-bs-toggle="dropdown">
+                    <div class="user-avatar">
+                        <?php echo substr($_SESSION['name'], 0, 1); ?>
+                    </div>
+                    <span class="ms-2 d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
+                    <i class="fas fa-chevron-down ms-2"></i>
                 </div>
-                <span><?php echo $_SESSION['name']; ?></span>
+                
+                <div class="dropdown-menu profile-dropdown">
+                    <div class="profile-header p-3 border-bottom">
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar-large">
+                                <?php echo substr($_SESSION['name'], 0, 1); ?>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 text-dark"><?php echo htmlspecialchars($_SESSION['name']); ?></h6>
+                                <small class="text-muted"><?php echo htmlspecialchars($_SESSION['email']); ?></small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-info border-bottom">
+                        <?php if (!empty($_SESSION['phone'])): ?>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <span><?php echo htmlspecialchars($_SESSION['phone']); ?></span>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($_SESSION['region'])): ?>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><?php echo htmlspecialchars($_SESSION['region']); ?></span>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($_SESSION['farming_type'])): ?>
+                        <div class="info-item">
+                            <i class="fas fa-seedling"></i>
+                            <span><?php echo htmlspecialchars($_SESSION['farming_type']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <a class="dropdown-item" href="profile.php">
+                        <i class="fas fa-user"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                </div>
             </div>
         </div>
     </header>
@@ -1240,6 +1572,56 @@ $translations = [
             $('#productForm')[0].reset();
             $('#product_id').val('');
             $('.modal-title').text('List New Product');
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userProfile = document.querySelector('.user-profile');
+        const dropdown = document.querySelector('.profile-dropdown');
+        
+        // Custom dropdown handler for mobile
+        if (window.innerWidth <= 768) {
+            userProfile.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Toggle dropdown
+                dropdown.classList.toggle('show');
+                
+                // Handle backdrop
+                if (dropdown.classList.contains('show')) {
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'dropdown-backdrop';
+                    document.body.appendChild(backdrop);
+                    
+                    backdrop.addEventListener('click', function() {
+                        dropdown.classList.remove('show');
+                        backdrop.remove();
+                    });
+                } else {
+                    const backdrop = document.querySelector('.dropdown-backdrop');
+                    if (backdrop) backdrop.remove();
+                }
+            });
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !userProfile.contains(e.target)) {
+                dropdown.classList.remove('show');
+                const backdrop = document.querySelector('.dropdown-backdrop');
+                if (backdrop) backdrop.remove();
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const backdrop = document.querySelector('.dropdown-backdrop');
+                if (backdrop) backdrop.remove();
+            }
         });
     });
     </script>

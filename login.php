@@ -50,6 +50,12 @@ if (isset($_GET['code'])) {
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['name'] = $user['name'];
                 $_SESSION['region'] = $user['region'];
+                $_SESSION['phone'] = $user['phone_number'];
+                $_SESSION['farm_size'] = $user['farm_size'];
+                $_SESSION['main_crops'] = $user['main_crops'];
+                $_SESSION['farming_type'] = $user['farming_type'];
+                $_SESSION['soil_type'] = $user['soil_type'];
+                $_SESSION['irrigation'] = $user['irrigation'];
             } else {
                 // Create new user
                 $sql = "INSERT INTO Users (name, email) VALUES (?, ?)";
@@ -58,6 +64,13 @@ if (isset($_GET['code'])) {
                 $stmt->execute();
                 $_SESSION['user_id'] = $conn->insert_id;
                 $_SESSION['name'] = $google_account_info->name;
+                $_SESSION['phone'] = $google_account_info->phoneNumber;
+                $_SESSION['region'] = $google_account_info->region;
+                $_SESSION['farm_size'] = $google_account_info->farmSize;
+                $_SESSION['main_crops'] = $google_account_info->mainCrops;
+                $_SESSION['farming_type'] = $google_account_info->farmingType;
+                $_SESSION['soil_type'] = $google_account_info->soilType;
+                $_SESSION['irrigation'] = $google_account_info->irrigation;
             }
             header("Location: dashboard.php");
             exit();
@@ -89,12 +102,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Verify password
         if (password_verify($password, $user['password'])) {
-            // Set session variables
+            // Set all session variables
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
+            $_SESSION['phone'] = $user['phone_number'];
+            $_SESSION['region'] = $user['region'];
+            $_SESSION['farm_size'] = $user['farm_size'];
+            $_SESSION['main_crops'] = $user['main_crops'];
+            $_SESSION['farming_type'] = $user['farming_type'];
+            $_SESSION['soil_type'] = $user['soil_type'];
+            $_SESSION['irrigation'] = $user['irrigation'];
             
-            // Redirect to dashboard
+            // Debug session data
+            error_log("Session data after login: " . print_r($_SESSION, true));
+            
             header("Location: dashboard.php");
             exit();
         } else {

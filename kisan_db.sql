@@ -8,9 +8,14 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
+    phone_number VARCHAR(20),
     role ENUM('farmer', 'buyer', 'admin') NOT NULL DEFAULT 'farmer',
-    address TEXT,
+    region VARCHAR(100),
+    farm_size VARCHAR(50),
+    main_crops TEXT,
+    farming_type ENUM('organic', 'traditional', 'mixed'),
+    soil_type VARCHAR(100),
+    irrigation VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -243,3 +248,21 @@ CREATE TABLE product_images (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
+
+-- Add new columns to users table
+ALTER TABLE users
+ADD COLUMN farm_size VARCHAR(50) DEFAULT NULL,
+ADD COLUMN main_crops TEXT DEFAULT NULL,
+ADD COLUMN farming_type ENUM('organic', 'traditional', 'mixed') DEFAULT NULL,
+ADD COLUMN soil_type VARCHAR(100) DEFAULT NULL,
+ADD COLUMN irrigation VARCHAR(100) DEFAULT NULL;
+
+-- Update users table structure
+ALTER TABLE users 
+    MODIFY phone_number VARCHAR(20),
+    MODIFY region VARCHAR(100),
+    MODIFY farm_size VARCHAR(50),
+    MODIFY main_crops TEXT,
+    MODIFY farming_type ENUM('organic', 'traditional', 'mixed'),
+    MODIFY soil_type VARCHAR(100),
+    MODIFY irrigation VARCHAR(100);

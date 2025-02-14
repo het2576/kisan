@@ -1217,5 +1217,149 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
             '<?php echo addslashes($translations[$lang]['confirm_delete']); ?>');
     });
   </script>
+  <script>
+$(document).ready(function() {
+    // Initialize filters
+    const categorySelect = $('select:contains("All Categories")');
+    const statusSelect = $('select:contains("All Status")');
+    const sortSelect = $('select:contains("Sort")');
+    const searchInput = $('input[placeholder*="Search"]');
+
+    // Add IDs to the selects for easier reference
+    categorySelect.attr('id', 'categoryFilter');
+    statusSelect.attr('id', 'statusFilter');
+    sortSelect.attr('id', 'sortFilter');
+    searchInput.attr('id', 'searchInput');
+
+    // Handle all filter changes
+    $('#categoryFilter, #statusFilter, #sortFilter').change(function() {
+        filterProducts();
+    });
+
+    // Handle search input with debounce
+    let searchTimeout;
+    $('#searchInput').on('keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(filterProducts, 500);
+    });
+
+    function filterProducts() {
+        const category = $('#categoryFilter').val();
+        const status = $('#statusFilter').val();
+        const sort = $('#sortFilter').val();
+        const search = $('#searchInput').val();
+
+        // Add loading state
+        $('.product-grid').addClass('loading');
+        
+        // Make AJAX call
+        $.ajax({
+            url: 'filter_products.php',
+            method: 'POST',
+            data: {
+                category: category,
+                status: status,
+                sort: sort,
+                search: search
+            },
+            success: function(response) {
+                $('.product-grid').html(response).removeClass('loading');
+                // Reinitialize any necessary event handlers
+                initializeProductHandlers();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error filtering products:', error);
+                $('.product-grid').removeClass('loading');
+                alert('Error filtering products. Please try again.');
+            }
+        });
+    }
+
+    function initializeProductHandlers() {
+        // Reinitialize edit buttons
+        $('.edit-button').click(function() {
+            const productId = $(this).data('product-id');
+            const price = $(this).data('price');
+            const quantity = $(this).data('quantity');
+            const status = $(this).data('status');
+            const category = $(this).data('category');
+
+            // Populate edit modal
+            $('#editProductModal').find('#edit_product_id').val(productId);
+            $('#editProductModal').find('#edit_price_per_kg').val(price);
+            $('#editProductModal').find('#edit_quantity_available').val(quantity);
+            $('#editProductModal').find('#edit_status').val(status);
+            $('#editProductModal').find('#edit_category_id').val(category);
+        });
+
+        // Reinitialize delete buttons
+        $('.delete-button').click(function() {
+            if (confirm('Are you sure you want to delete this product?')) {
+                const productId = $(this).data('product-id');
+                deleteProduct(productId);
+            }
+        });
+    }
+});
+</script>
+
+<style>
+/* Add loading state styles */
+.product-grid.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.product-grid.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Improve dropdown styles */
+.form-select {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-select:hover {
+    border-color: #4CAF50;
+}
+
+.form-select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+/* Improve search input */
+.form-control {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+</style>
 </body>
 </html>

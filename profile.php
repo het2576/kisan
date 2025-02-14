@@ -5,157 +5,307 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-require_once 'db.php';
+require_once 'db_connect.php';
 
-// Only farmers may access this page.
-if ($_SESSION['role'] !== 'farmer') {
-    echo "Access denied. Only farmers can access this page.";
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Get language from session
+$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : 'en';
+
+// Fetch user data
+$stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$farmer = $stmt->get_result()->fetch_assoc();
+
+if (!$farmer) {
+    header("Location: login.php");
     exit();
 }
 
-// Fetch the farmer’s current details from the "users" table.
-// (Assumes columns: id, name, contact_info, address, farm_details)
-$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$farmer = $stmt->fetch();
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name']);
+    $phone = trim($_POST['phone']);
+    $region = trim($_POST['region']);
+    $farm_size = trim($_POST['farm_size']);
+    $main_crops = trim($_POST['main_crops']);
+    $farming_type = trim($_POST['farming_type']);
+    $soil_type = trim($_POST['soil_type']);
+    $irrigation = trim($_POST['irrigation']);
 
-$profile_updated = false;
-$product_uploaded = false;
+    try {
+        // Update user profile
+        $sql = "UPDATE users SET 
+                name = ?, 
+                phone_number = ?, 
+                region = ?, 
+                farm_size = ?, 
+                main_crops = ?, 
+                farming_type = ?, 
+                soil_type = ?, 
+                irrigation = ? 
+                WHERE user_id = ?";
 
-// Update profile if form submitted.
-if (isset($_POST['update_profile'])) {
-    $contact_info = $_POST['contact_info'];
-    $address      = $_POST['address'];
-    $farm_details = $_POST['farm_details'];
-    
-    $stmt = $pdo->prepare("UPDATE users SET contact_info = ?, address = ?, farm_details = ? WHERE id = ?");
-    $stmt->execute([$contact_info, $address, $farm_details, $_SESSION['user_id']]);
-    $profile_updated = true;
-    
-    // Refresh the $farmer variable.
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $farmer = $stmt->fetch();
-}
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssssssi", 
+            $name, 
+            $phone, 
+            $region, 
+            $farm_size, 
+            $main_crops, 
+            $farming_type, 
+            $soil_type, 
+            $irrigation, 
+            $_SESSION['user_id']
+        );
 
-// Process product upload.
-if (isset($_POST['upload_product'])) {
-    $product_name = $_POST['product_name'];
-    $description  = $_POST['description'];
-    $price        = $_POST['price'];
-    
-    // Handle file upload.
-    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === 0) {
-        $upload_dir = 'uploads/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-        $file_name   = time() . '_' . basename($_FILES['product_image']['name']);
-        $target_file = $upload_dir . $file_name;
-        if (move_uploaded_file($_FILES['product_image']['tmp_name'], $target_file)) {
-            // Insert the new product into the "products" table.
-            $stmt = $pdo->prepare("INSERT INTO products (farmer_id, product_name, description, price, image, status) VALUES (?, ?, ?, ?, ?, 'active')");
-            $stmt->execute([$_SESSION['user_id'], $product_name, $description, $price, $target_file]);
-            $product_uploaded = true;
+        if ($stmt->execute()) {
+            // Update session variables
+            $_SESSION['name'] = $name;
+            $_SESSION['phone'] = $phone;
+            $_SESSION['region'] = $region;
+            $_SESSION['farm_size'] = $farm_size;
+            $_SESSION['main_crops'] = $main_crops;
+            $_SESSION['farming_type'] = $farming_type;
+            $_SESSION['soil_type'] = $soil_type;
+            $_SESSION['irrigation'] = $irrigation;
+
+            // Debug session data
+            error_log("Session data after update: " . print_r($_SESSION, true));
+            
+            $success_message = "Profile updated successfully!";
+            
+            // Refresh user data
+            $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
+            $stmt->bind_param("i", $_SESSION['user_id']);
+            $stmt->execute();
+            $farmer = $stmt->get_result()->fetch_assoc();
         } else {
-            echo "Error uploading file.";
+            throw new Exception($stmt->error);
         }
-    } else {
-        echo "Please select a product image.";
+    } catch (Exception $e) {
+        $error_message = "Error updating profile: " . $e->getMessage();
+        error_log("Profile update error: " . $e->getMessage());
     }
 }
-
-// Retrieve all products uploaded by this farmer.
-$stmt = $pdo->prepare("SELECT * FROM products WHERE farmer_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$products = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Farmer Profile - Kisan.ai Marketplace</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .card-img-top {
-        height: 200px;
-        object-fit: cover;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Profile - Kisan.ai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            padding: 15px;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 15px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            color: #2d3748;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .form-control:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .btn-update {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-update:hover {
+            background: #43A047;
+            transform: translateY(-2px);
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
+        .back-button:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+            }
+
+            .form-control {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+
+            .col-md-6 {
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+
+            .profile-container {
+                padding: 15px;
+            }
+
+            .back-button {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <?php include 'navbar.php'; ?>
-  <div class="container mt-5">
-    <h2>Farmer Profile</h2>
-    <?php if ($profile_updated): ?>
-      <div class="alert alert-success">Profile updated successfully.</div>
-    <?php endif; ?>
-    <form method="post" action="profile.php">
-      <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" id="name" class="form-control" value="<?php echo htmlspecialchars($farmer['name']); ?>" disabled>
-      </div>
-      <div class="mb-3">
-        <label for="contact_info" class="form-label">Contact Information</label>
-        <input type="text" name="contact_info" id="contact_info" class="form-control" value="<?php echo htmlspecialchars($farmer['contact_info']); ?>" required>
-      </div>
-      <div class="mb-3">
-        <label for="address" class="form-label">Address</label>
-        <textarea name="address" id="address" class="form-control" required><?php echo htmlspecialchars($farmer['address']); ?></textarea>
-      </div>
-      <div class="mb-3">
-        <label for="farm_details" class="form-label">Farm Details</label>
-        <textarea name="farm_details" id="farm_details" class="form-control" required><?php echo htmlspecialchars($farmer['farm_details']); ?></textarea>
-      </div>
-      <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
-    </form>
-    
-    <hr>
-    <h2 class="mt-5">Upload New Product</h2>
-    <?php if ($product_uploaded): ?>
-      <div class="alert alert-success">Product uploaded successfully.</div>
-    <?php endif; ?>
-    <form method="post" action="profile.php" enctype="multipart/form-data">
-      <div class="mb-3">
-        <label for="product_name" class="form-label">Product Name</label>
-        <input type="text" name="product_name" id="product_name" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea name="description" id="description" class="form-control" required></textarea>
-      </div>
-      <div class="mb-3">
-        <label for="price" class="form-label">Price (₹)</label>
-        <input type="number" name="price" id="price" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="product_image" class="form-label">Product Image</label>
-        <input type="file" name="product_image" id="product_image" class="form-control" required>
-      </div>
-      <button type="submit" name="upload_product" class="btn btn-success">Upload Product</button>
-    </form>
-    
-    <hr>
-    <h2 class="mt-5">Your Products</h2>
-    <div class="row">
-      <?php foreach ($products as $product): ?>
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="<?php echo htmlspecialchars($product['image']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['product_name']); ?>">
-            <div class="card-body">
-              <h5 class="card-title"><?php echo htmlspecialchars($product['product_name']); ?></h5>
-              <p class="card-text"><?php echo htmlspecialchars($product['description']); ?></p>
-              <p><strong>Price: </strong>₹<?php echo htmlspecialchars($product['price']); ?></p>
-              <a href="edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
-              <a href="delete_product.php?id=<?php echo $product['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
-            </div>
-          </div>
+    <div class="container">
+        <a href="dashboard.php" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+
+        <div class="profile-container">
+            <?php if (isset($success_message)): ?>
+                <div class="alert alert-success">
+                    <?php echo $success_message; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($error_message)): ?>
+                <div class="alert alert-danger">
+                    <?php echo $error_message; ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST">
+                <h2 class="section-title">Personal Information</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($farmer['name']); ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" name="phone" value="<?php echo htmlspecialchars($farmer['phone_number'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Region</label>
+                        <input type="text" class="form-control" name="region" value="<?php echo htmlspecialchars($farmer['region'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <h2 class="section-title">Farming Information</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Farm Size (Acres)</label>
+                        <input type="text" class="form-control" name="farm_size" value="<?php echo htmlspecialchars($farmer['farm_size'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Main Crops</label>
+                        <input type="text" class="form-control" name="main_crops" value="<?php echo htmlspecialchars($farmer['main_crops'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Farming Type</label>
+                        <select class="form-control" name="farming_type">
+                            <option value="">Select Farming Type</option>
+                            <option value="organic" <?php echo ($farmer['farming_type'] ?? '') === 'organic' ? 'selected' : ''; ?>>Organic</option>
+                            <option value="traditional" <?php echo ($farmer['farming_type'] ?? '') === 'traditional' ? 'selected' : ''; ?>>Traditional</option>
+                            <option value="mixed" <?php echo ($farmer['farming_type'] ?? '') === 'mixed' ? 'selected' : ''; ?>>Mixed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Soil Type</label>
+                        <input type="text" class="form-control" name="soil_type" value="<?php echo htmlspecialchars($farmer['soil_type'] ?? ''); ?>">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Irrigation Method</label>
+                        <input type="text" class="form-control" name="irrigation" value="<?php echo htmlspecialchars($farmer['irrigation'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-update">
+                    Update Profile
+                </button>
+            </form>
         </div>
-      <?php endforeach; ?>
     </div>
-  </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
