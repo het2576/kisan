@@ -5,6 +5,7 @@ ini_set('display_errors', 1);
 
 session_start();
 require_once 'db_connect.php';
+require_once 'disease_recommendations.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -203,10 +204,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
         $error = isset($error) ? $error : $translations[$lang]['error_upload'];
     } else {
         if (move_uploaded_file($tmp_file, $target_file)) {
-            // File moved successfully; now call the Flask API for disease prediction.
+            // File moved successfully; now call the Flask API for disease prediction
             $_SESSION['uploaded_image'] = $target_file;
 
-            // Set your Flask API URL. Ensure the Flask server is running on this URL.
+            // Set your Flask API URL
             $apiUrl = 'http://localhost:5000/predict';
             $cfile = curl_file_create($target_file, mime_content_type($target_file), basename($target_file));
             $postData = array('image' => $cfile);
@@ -218,6 +219,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
             $apiResponse = curl_exec($ch);
+            
             if (curl_errno($ch)) {
                 $error = 'API Request Error: ' . curl_error($ch);
                 $uploadOk = 0;
@@ -227,18 +229,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
 
             if ($uploadOk == 1) {
                 $result = json_decode($apiResponse, true);
+                error_log("API Response: " . print_r($result, true)); // Debug log
+                
                 if (isset($result['prediction'])) {
-                    $predictedDisease = trim($result['prediction']);
-                    // Map prediction to local disease details if available
-                    if (array_key_exists($predictedDisease, $disease_database)) {
-                        $_SESSION['detection_result'] = $disease_database[$predictedDisease];
+                    $detected_disease = trim($result['prediction']);
+                    $_SESSION['detected_disease'] = $detected_disease;
+                    
+                    // Store confidence value - handle both possible response formats
+                    if (isset($result['confidence'])) {
+                        $_SESSION['confidence'] = floatval($result['confidence']);
+                    } elseif (isset($result['probability'])) {
+                        $_SESSION['confidence'] = floatval($result['probability']);
                     } else {
-                        $_SESSION['detection_result'] = [
-                            'name' => ucfirst($predictedDisease),
-                            'confidence' => 80,
-                            'treatment' => 'No treatment available'
-                        ];
+                        $_SESSION['confidence'] = 0.95; // Default high confidence if not provided
                     }
+                    
+                    error_log("Confidence value stored: " . $_SESSION['confidence']); // Debug log
+                    
+                    // Get detailed recommendations
+                    $disease_info = getDetailedRecommendations($detected_disease, $lang);
+                    $_SESSION['detection_result'] = $disease_info;
                 } else {
                     $error = isset($result['error']) ? $result['error'] : $translations[$lang]['error_upload'];
                 }
@@ -250,6 +260,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
             $uploadOk = 0;
         }
     }
+}
+
+// Add this function at the top of your file
+function getConfidencePercentage() {
+    if (!isset($_SESSION['confidence'])) {
+        error_log("No confidence value in session");
+        return 0;
+    }
+    
+    $confidence = $_SESSION['confidence'];
+    
+    // Handle different formats
+    if (is_string($confidence)) {
+        $confidence = floatval($confidence);
+    }
+    
+    // If confidence is already in percentage format (>1)
+    if ($confidence > 1) {
+        $confidence = $confidence / 100;
+    }
+    
+    $percentage = round($confidence * 100);
+    error_log("Calculated confidence percentage: " . $percentage);
+    
+    return $percentage;
 }
 ?>
 
@@ -322,34 +357,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
             border: 1px solid var(--border-color);
         }
         .upload-zone {
-            border: 2px dashed var(--primary-color);
-            border-radius: 20px;
-            padding: 4rem 2rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
             text-align: center;
-            cursor: pointer;
+            background: var(--card-bg);
             transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-zone.drag-over {
             background: var(--accent-color);
-            position: relative;
+            border-color: var(--primary-color);
+        }
+        .preview-container {
+            margin: 20px auto;
+            max-width: 100%;
+            border-radius: 15px;
             overflow: hidden;
-        }
-        .upload-zone:hover {
-            transform: scale(1.01);
-            border-color: var(--secondary-color);
-            background: linear-gradient(145deg, var(--accent-color), #E6FFE6);
-        }
-        .upload-icon {
-            font-size: 4rem;
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            filter: drop-shadow(0 4px 6px rgba(47,133,90,0.2));
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .preview-image {
-            max-width: 100%;
-            max-height: 400px;
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px;
             object-fit: contain;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(47,133,90,0.1);
-            border: 3px solid var(--border-color);
         }
         .disease-card {
             border-radius: 20px;
@@ -394,37 +426,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
         .severity-medium { background: #FEFCBF; color: #975A16; }
         .severity-high { background: #FED7D7; color: #C53030; }
         .btn-detect {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            padding: 1.2rem 2rem;
-            color: white;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            margin-top: 20px;
             width: 100%;
-            margin-top: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
         .btn-detect:hover {
+            background: var(--secondary-color);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(47,133,90,0.2);
-        }
-        .btn-detect::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(to bottom right, rgba(255,255,255,0.2), rgba(255,255,255,0));
-            transform: rotate(45deg);
-            transition: 0.5s;
-        }
-        .btn-detect:hover::after {
-            transform: rotate(45deg) translate(50%,50%);
         }
         .disease-icon {
             font-size: 3rem;
@@ -483,6 +497,131 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
             margin: 0;
             color: var(--text-color);
         }
+        .ai-recommendation-section {
+            background: linear-gradient(145deg, #f0fff4, #e6ffed);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+        }
+        .ai-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .ai-avatar {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .ai-content {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+        .ai-recommendation-section h5 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .image-preview-section {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .uploaded-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
+        }
+        .disease-name {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .disease-info {
+            padding-top: 15px;
+        }
+        .ai-recommendation-section {
+            margin-top: 15px;
+            background: linear-gradient(145deg, #f0fff4, #e6ffed);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .ai-message {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        .ai-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .ai-content {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .accuracy-badge {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .accuracy-badge span {
+            display: flex;
+            align-items: center;
+        }
+        .confidence-bar {
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .confidence-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+        .disease-header {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 <body>
@@ -507,7 +646,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
                             <p class="text-muted">Drag and drop your image here or click to browse</p>
                             <input type="file" class="form-control d-none" id="cropImage" name="cropImage" accept="image/*" required>
                         </div>
-                        <div id="imagePreview" class="mt-4 text-center"></div>
+                        <div id="imagePreview" class="mt-4 text-center">
+                            <!-- Preview will be shown here -->
+                        </div>
                         <button type="submit" class="btn-detect" name="submit">
                             <i class="fas fa-microscope me-2"></i><?php echo $translations[$lang]['detect']; ?>
                         </button>
@@ -521,33 +662,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
                         <h3><?php echo $translations[$lang]['results']; ?></h3>
                     </div>
                     <?php if(isset($_SESSION['detection_result']) && isset($_SESSION['uploaded_image'])): ?>
-                        <img src="<?php echo $_SESSION['uploaded_image']; ?>" class="preview-image mb-4 w-100" alt="Uploaded crop">
-                        <div class="disease-card">
-                            <h5><?php echo $translations[$lang]['detected_disease']; ?></h5>
-                            <h3 class="text-primary mb-4">
-                                <?php echo isset($_SESSION['detection_result']['name'][$lang]) ? $_SESSION['detection_result']['name'][$lang] : $_SESSION['detection_result']['name']; ?>
-                            </h3>
-                            <?php
-                                $confidence = isset($_SESSION['detection_result']['confidence']) ? $_SESSION['detection_result']['confidence'] : 0;
-                                $severity = ($confidence >= 90) ? 'High Severity' : (($confidence >= 70) ? 'Medium Severity' : 'Low Severity');
-                                $severityClass = ($confidence >= 90) ? 'severity-high' : (($confidence >= 70) ? 'severity-medium' : 'severity-low');
-                            ?>
-                            <div class="severity-indicator <?php echo $severityClass; ?>">
-                                <?php echo $severity; ?>
+                        <div class="result-card">
+                            <!-- Image Preview -->
+                            <div class="image-preview-section mb-4">
+                                <img src="<?php echo $_SESSION['uploaded_image']; ?>" 
+                                     class="uploaded-image" 
+                                     alt="Uploaded crop">
                             </div>
-                            <h6><?php echo $translations[$lang]['confidence']; ?></h6>
-                            <div class="confidence-bar">
-                                <div class="confidence-level" style="width: <?php echo $confidence; ?>%"></div>
-                            </div>
-                            <p class="text-end mb-4"><?php echo $confidence; ?>%</p>
-                            <div class="treatment-card">
-                                <h6 class="mb-3">
-                                    <i class="fas fa-prescription-bottle-medical me-2"></i>
-                                    <?php echo $translations[$lang]['treatment']; ?>
-                                </h6>
-                                <p class="mb-0">
-                                    <?php echo isset($_SESSION['detection_result']['treatment'][$lang]) ? $_SESSION['detection_result']['treatment'][$lang] : $_SESSION['detection_result']['treatment']; ?>
-                                </p>
+
+                            <!-- Disease Name and AI Recommendation -->
+                            <div class="disease-info">
+                                <div class="disease-header d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="disease-name">
+                                        <i class="fas fa-bug me-2"></i>
+                                        <?php echo $disease_info['name']; ?>
+                                    </h4>
+                                    <div class="accuracy-badge">
+                                        <?php 
+                                        $confidence_percentage = getConfidencePercentage();
+                                        echo "<span>{$confidence_percentage}% Accuracy</span>";
+                                        ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="confidence-bar mb-4">
+                                    <div class="confidence-level" style="width: <?php echo $confidence_percentage; ?>%"></div>
+                                </div>
+                                
+                                <div class="ai-recommendation-section">
+                                    <h5><i class="fas fa-robot me-2"></i>AI Expert Recommendation</h5>
+                                    <div class="ai-message">
+                                        <div class="ai-avatar">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="ai-content">
+                                            <?php 
+                                            $ai_recommendation = getAIRecommendation($disease_info, $lang);
+                                            echo $ai_recommendation; 
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     <?php else: ?>
@@ -562,7 +717,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Enhanced drag and drop functionality
+        // Enhanced drag and drop functionality with preview
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('cropImage');
         const preview = document.getElementById('imagePreview');
@@ -581,15 +736,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
+            dropZone.addEventListener('dragleave', unhighlight, false);
         });
 
         function highlight(e) {
-            dropZone.classList.add('bg-light');
+            dropZone.classList.add('drag-over');
         }
 
         function unhighlight(e) {
-            dropZone.classList.remove('bg-light');
+            dropZone.classList.remove('drag-over');
         }
 
         dropZone.addEventListener('click', () => fileInput.click());
@@ -610,9 +765,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["cropImage"])) {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    preview.innerHTML = `<img src="${e.target.result}" class="preview-image">`;
+                    preview.innerHTML = `
+                        <div class="preview-container">
+                            <img src="${e.target.result}" class="preview-image" alt="Image preview">
+                        </div>`;
                 };
                 reader.readAsDataURL(file);
+                dropZone.style.display = 'none'; // Hide drop zone after upload
             }
         }
     </script>
