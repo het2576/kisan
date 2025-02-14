@@ -1,16 +1,13 @@
 <?php
-session_start(); // Start the session
+require_once __DIR__ . '/includes/init.php';
 
-// Redirect to login if the user is not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// Get user role from session
+$userRole = getCurrentUserRole() ?? 'buyer';
 
 // Set language based on selection or session
 if (isset($_GET['lang'])) {
     $lang = $_GET['lang'];
-    $_SESSION['lang'] = $lang; // Store language in session
+    $_SESSION['lang'] = $lang;
 } else if (isset($_SESSION['lang'])) {
     $lang = $_SESSION['lang'];
 } else {
@@ -1049,61 +1046,85 @@ $translations = [
     </div>
     <div class="nav-links">
         <!-- Dashboard -->
-        <a href="dashboard.php" class="nav-link active">
-            <i class="fas fa-home"></i><?php echo $translations[$lang]['dashboard']; ?>
+        <a href="dashboard.php" class="nav-link <?php echo ($page == 'dashboard') ? 'active' : ''; ?>">
+            <i class="fas fa-home"></i>
+            <span><?php echo $translations[$lang]['dashboard']; ?></span>
         </a>
-        
+
+        <!-- Marketplace Dropdown -->
+        <div class="dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-store"></i>
+                <span><?php echo $translations[$lang]['marketplace']; ?></span>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="marketplace.php">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Buy/Sell Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="auction/" target="_blank">
+                        <i class="fas fa-gavel"></i>
+                        <span>Agricultural Auctions</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <!-- Tools Dropdown -->
         <div class="dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                 <i class="fas fa-tools"></i>
-                <?php echo $translations[$lang]['tools']; ?>
+                <span><?php echo $translations[$lang]['tools']; ?></span>
                 <i class="fas fa-chevron-down"></i>
             </a>
             <ul class="dropdown-menu">
                 <li>
                     <a class="dropdown-item" href="inventory.php">
                         <i class="fas fa-box"></i>
-                        <?php echo $translations[$lang]['inventory']; ?>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="tools.php">
-                        <i class="fas fa-tools"></i>
-                        <?php echo $translations[$lang]['tools']; ?>
+                        <span><?php echo $translations[$lang]['inventory']; ?></span>
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" href="crop_profit_calc.php">
                         <i class="fas fa-calculator"></i>
-                        <?php echo $translations[$lang]['profit_calc']; ?>
+                        <span><?php echo $translations[$lang]['profit_calc']; ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="crop_disease_detection.php">
+                        <i class="fas fa-microscope"></i>
+                        <span><?php echo $translations[$lang]['disease_detection']; ?></span>
                     </a>
                 </li>
             </ul>
         </div>
-        
-        <!-- Existing Market Insights Link (Optional) -->
-        <a href="market.php" class="nav-link">
-            <i class="fas fa-chart-line"></i><?php echo $translations[$lang]['market']; ?>
+
+        <!-- Market Insights -->
+        <a href="market.php" class="nav-link <?php echo ($page == 'market') ? 'active' : ''; ?>">
+            <i class="fas fa-chart-line"></i>
+            <span><?php echo $translations[$lang]['market']; ?></span>
         </a>
-        
-        <!-- New Marketplace Link -->
-        <a href="marketplace.php" class="nav-link">
-            <i class="fas fa-store"></i><?php echo $translations[$lang]['marketplace']; ?>
+
+        <!-- Weather -->
+        <a href="weather.php" class="nav-link <?php echo ($page == 'weather') ? 'active' : ''; ?>">
+            <i class="fas fa-cloud-sun"></i>
+            <span><?php echo $translations[$lang]['weather']; ?></span>
         </a>
-        
-        <!-- Other Links -->
-        <a href="weather.php" class="nav-link">
-            <i class="fas fa-cloud-sun"></i><?php echo $translations[$lang]['weather']; ?>
+
+        <!-- AI Assistant -->
+        <a href="ai_assistant.php" class="nav-link <?php echo ($page == 'ai') ? 'active' : ''; ?>">
+            <i class="fas fa-robot"></i>
+            <span><?php echo $translations[$lang]['ai']; ?></span>
         </a>
-        <a href="ai_assistant.php" class="nav-link">
-            <i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?>
-        </a>
-        <a href="agri_news.php" class="nav-link">
-            <i class="fas fa-newspaper"></i><?php echo $translations[$lang]['news']; ?>
-        </a>
-        <a href="crop_disease_detection.php" class="nav-link">
-            <i class="fas fa-microscope"></i><?php echo $translations[$lang]['disease_detection']; ?>
+
+        <!-- News -->
+        <a href="agri_news.php" class="nav-link <?php echo ($page == 'news') ? 'active' : ''; ?>">
+            <i class="fas fa-newspaper"></i>
+            <span><?php echo $translations[$lang]['news']; ?></span>
         </a>
     </div>
     <div class="logout-container">
