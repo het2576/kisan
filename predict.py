@@ -106,7 +106,4 @@ elif(app_mode=="Disease Recognition"):
     'Tomato___Tomato_mosaic_virus',
     'Tomato___healthy']
         st.success("Model is Predicting it's a {}".format(class_name[result_index]))
-        # Assuming you have X_test and y_test prepared
-loss, accuracy = model.evaluate(X_test, y_test, verbose=1)
-print("Test Accuracy: {:.2f}%".format(accuracy * 100))
-
+        

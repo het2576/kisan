@@ -1,79 +1,33 @@
 <?php
-session_start();
 require_once 'db_connect.php';
 
-// Get language from session
-$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : 'en';
+header('Content-Type: application/json');
 
 // Get filter parameters
-$category = $_POST['category'] ?? '';
-$status = $_POST['status'] ?? '';
-$sort = $_POST['sort'] ?? '';
-$search = $_POST['search'] ?? '';
+$category = isset($_GET['category']) ? $_GET['category'] : '';
+$search = isset($_GET['search']) ? $_GET['search'] : '';
 
-// Build query
-$query = "SELECT p.*, c.name as category_name 
-          FROM products p 
-          LEFT JOIN categories c ON p.category_id = c.category_id 
-          WHERE p.seller_id = ?";
-$params = [$_SESSION['user_id']];
-$types = "i";
+// Build the query
+$query = "SELECT * FROM products WHERE 1=1";
 
-// Add filters
-if ($category) {
-    $query .= " AND p.category_id = ?";
-    $params[] = $category;
-    $types .= "i";
+if (!empty($category) && $category !== 'all') {
+    $query .= " AND category = '" . mysqli_real_escape_string($conn, $category) . "'";
 }
 
-if ($status && $status !== 'all') {
-    $query .= " AND p.status = ?";
-    $params[] = $status;
-    $types .= "s";
+if (!empty($search)) {
+    $query .= " AND (name LIKE '%" . mysqli_real_escape_string($conn, $search) . "%' OR 
+                     description LIKE '%" . mysqli_real_escape_string($conn, $search) . "%')";
 }
 
-if ($search) {
-    $query .= " AND (p.name LIKE ? OR p.description LIKE ?)";
-    $searchTerm = "%$search%";
-    $params[] = $searchTerm;
-    $params[] = $searchTerm;
-    $types .= "ss";
+$result = mysqli_query($conn, $query);
+$products = [];
+
+while ($row = mysqli_fetch_assoc($result)) {
+    // Ensure image path is complete
+    $row['image'] = '/uploads/' . $row['image'];
+    $products[] = $row;
 }
 
-// Add sorting
-switch ($sort) {
-    case 'price_high':
-        $query .= " ORDER BY p.price_per_kg DESC";
-        break;
-    case 'price_low':
-        $query .= " ORDER BY p.price_per_kg ASC";
-        break;
-    case 'newest':
-        $query .= " ORDER BY p.created_at DESC";
-        break;
-    case 'oldest':
-        $query .= " ORDER BY p.created_at ASC";
-        break;
-    default:
-        $query .= " ORDER BY p.created_at DESC";
-}
-
-// Execute query
-$stmt = $conn->prepare($query);
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-$stmt->execute();
-$result = $stmt->get_result();
-
-// Check if we have results
-if ($result->num_rows === 0) {
-    echo '<div class="alert alert-info text-center">No products found matching your criteria.</div>';
-    exit;
-}
-
-// Output products
-while ($product = $result->fetch_assoc()) {
-    include 'product_card.php'; // Create this partial view for consistent product display
-}
+echo json_encode(['products' => $products]);
+mysqli_close($conn);
 ?> 

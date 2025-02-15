@@ -2,21 +2,21 @@
 // db.php
 
 // Database configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
-define('DB_NAME', 'kisan_db');
+$host = "localhost";
+$username = "root";         // Default XAMPP MySQL username
+$password = "";            // Empty password for default XAMPP
+$database = "kisan_db";    // Your database name
 
 // Create connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = mysqli_connect($host, $username, $password, $database);
 
 // Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 // Set charset to utf8mb4
-$conn->set_charset("utf8mb4");
+mysqli_set_charset($conn, "utf8mb4");
 
 return $conn;
 ?>
