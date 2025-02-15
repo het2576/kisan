@@ -5,11 +5,11 @@ function isLoggedIn() {
 }
 
 function isAdmin() {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+    return isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
 }
 
 function isFarmer() {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'farmer';
+    return isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'farmer';
 }
 
 function getCurrentUserId() {
@@ -18,6 +18,10 @@ function getCurrentUserId() {
 
 function getCurrentUserRole() {
     return $_SESSION['role'] ?? null;
+}
+
+function isAuthenticated() {
+    return isset($_SESSION['user']) && !empty($_SESSION['user']['id']);
 }
 
 // Check authentication only if not in login page

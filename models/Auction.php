@@ -28,34 +28,57 @@ class Auction {
     }
 
     // Create new auction
-    public function create() {
-        $query = "INSERT INTO " . $this->table . " 
-            (seller_id, category_id, title, description, image_url, starting_price, 
-             min_increment, start_time, end_time) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+    public function create($data) {
         try {
+            // Validate required fields
+            $required_fields = ['title', 'description', 'starting_bid', 'current_bid', 
+                              'min_increment', 'end_time', 'image_url', 'seller_name'];
+            foreach ($required_fields as $field) {
+                if (!isset($data[$field])) {
+                    error_log("Missing required field: $field");
+                    return false;
+                }
+            }
+
+            // Make sure seller_id exists in session
+            if (!isset($_SESSION['user']['id'])) {
+                error_log("No seller_id found in session");
+                return false;
+            }
+
+            $query = "INSERT INTO " . $this->table . " 
+                (seller_id, title, description, starting_bid, current_bid, 
+                 min_increment, end_time, image_url, seller_name, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')";
+
             $stmt = $this->conn->prepare($query);
-            
-            // Sanitize inputs
-            $this->title = htmlspecialchars(strip_tags($this->title));
-            $this->description = htmlspecialchars(strip_tags($this->description));
-            
-            $stmt->bind_param("iisssddss",
-                $this->seller_id,
-                $this->category_id,
-                $this->title,
-                $this->description,
-                $this->image_url,
-                $this->starting_price,
-                $this->min_increment,
-                $this->start_time,
-                $this->end_time
+            if (!$stmt) {
+                error_log("Prepare failed: " . $this->conn->error);
+                return false;
+            }
+
+            $seller_id = $_SESSION['user']['id'];
+            $stmt->bind_param("issdddss",
+                $seller_id,
+                $data['title'],
+                $data['description'],
+                $data['starting_bid'],
+                $data['current_bid'],
+                $data['min_increment'],
+                $data['end_time'],
+                $data['image_url'],
+                $data['seller_name']
             );
 
-            return $stmt->execute();
+            $result = $stmt->execute();
+            if (!$result) {
+                error_log("Execute failed: " . $stmt->error);
+                return false;
+            }
+
+            return true;
         } catch (Exception $e) {
-            error_log("Error creating auction: " . $e->getMessage());
+            error_log("Auction Creation Error: " . $e->getMessage());
             return false;
         }
     }
@@ -214,6 +237,51 @@ class Auction {
         } catch (Exception $e) {
             error_log("Error in getCategories: " . $e->getMessage());
             return [];
+        }
+    }
+
+    public function placeBid($auction_id, $bidder_id, $bidder_name, $bid_amount) {
+        $stmt = $this->conn->prepare("
+            UPDATE auctions 
+            SET current_bid = ?, 
+                current_bidder_id = ?,
+                current_bidder_name = ?
+            WHERE auction_id = ? 
+            AND current_bid < ?
+            AND end_time > NOW()
+        ");
+        
+        $stmt->bind_param("disid", $bid_amount, $bidder_id, $bidder_name, $auction_id, $bid_amount);
+        return $stmt->execute();
+    }
+
+    public function getLastError() {
+        return $this->conn->error;
+    }
+
+    public function saveAuctionMetadata($auction_id, $metadata) {
+        try {
+            $stmt = $this->conn->prepare("
+                INSERT INTO auction_metadata 
+                (auction_id, shipping_info, payment_terms, quality_grade, 
+                 certification, harvest_date, storage_conditions)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $stmt->bind_param("issssss",
+                $auction_id,
+                $metadata['shipping_info'],
+                $metadata['payment_terms'],
+                $metadata['quality_grade'],
+                $metadata['certification'],
+                $metadata['harvest_date'],
+                $metadata['storage_conditions']
+            );
+            
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Error saving auction metadata: " . $e->getMessage());
+            return false;
         }
     }
 } 

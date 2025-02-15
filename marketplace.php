@@ -726,6 +726,34 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
             padding: 1.5rem;
         }
     }
+
+    .customer-marketplace-section {
+        margin-top: 50px;
+        margin-bottom: 30px;
+    }
+
+    .customer-marketplace-section .card {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .customer-btn {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: var(--primary-color);
+        border: none;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .customer-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(47, 133, 90, 0.2);
+        background: var(--secondary-color);
+    }
   </style>
 </head>
 <body>
@@ -897,6 +925,22 @@ if ($isFarmer && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_p
                       </div>
                   </div>
                   <?php endforeach; ?>
+              </div>
+          </div>
+      </div>
+
+      <!-- Add this right before the closing </div> of the main container -->
+      <div class="customer-marketplace-section">
+          <div class="card">
+              <div class="card-body text-center py-5">
+                  <h3 class="mb-3">Are you a Customer?</h3>
+                  <p class="text-muted mb-4">Visit our dedicated marketplace platform to browse and purchase agricultural products directly</p>
+                  <a href="https://kisan-marketplace.netlify.app/" 
+                     target="_blank" 
+                     class="btn btn-success btn-lg customer-btn">
+                      <i class="fas fa-shopping-cart me-2"></i>
+                      Visit Customer Marketplace
+                  </a>
               </div>
           </div>
       </div>

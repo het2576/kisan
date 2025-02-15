@@ -33,18 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Create new auction
-        $auction->seller_id = $_SESSION['user_id'];
-        $auction->category_id = $_POST['category_id'];
-        $auction->title = $_POST['title'];
-        $auction->description = $_POST['description'];
-        $auction->image_url = $image_url;
-        $auction->starting_price = $_POST['starting_price'];
-        $auction->min_increment = $_POST['min_increment'];
-        $auction->start_time = $_POST['start_time'];
-        $auction->end_time = $_POST['end_time'];
-        $auction->status = 'active';
+        $data = [
+            'title' => $_POST['title'],
+            'description' => $_POST['description'],
+            'starting_bid' => $_POST['starting_price'],
+            'current_bid' => $_POST['starting_price'], // Initial current bid equals starting price
+            'min_increment' => $_POST['min_increment'],
+            'end_time' => $_POST['end_time'],
+            'image_url' => $image_url,
+            'seller_name' => $_SESSION['user']['name']
+        ];
 
-        if ($auction->create()) {
+        if ($auction->create($data)) {
             header('Location: index.php?success=1');
             exit();
         } else {

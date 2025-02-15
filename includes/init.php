@@ -4,6 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Add role validation
+if (!isset($_SESSION['user']['role'])) {
+    $_SESSION['user']['role'] = 'guest'; // Default role
+}
+
 // Load configurations
 require_once __DIR__ . '/config.php';
 

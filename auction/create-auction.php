@@ -1,6 +1,9 @@
 <?php
 require_once '../includes/init.php';
 require_once '../models/Auction.php';
+require_once '../includes/validators/AuctionValidator.php';
+require_once '../includes/handlers/ImageHandler.php';
+require_once '../includes/services/NotificationService.php';
 
 // Advanced security check
 if (!isAuthenticated() || (!isFarmer() && !isAdmin())) {

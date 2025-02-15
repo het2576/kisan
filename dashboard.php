@@ -161,6 +161,9 @@ $translations = [
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2F855A;
@@ -1018,6 +1021,15 @@ $translations = [
                 padding: 10px 15px 10px 57px;
             }
         }
+
+        .external-link-icon {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .nav-link:hover .external-link-icon {
+            opacity: 1;
+        }
     </style>
     <script>
     // Check for notifications on page load
@@ -1066,9 +1078,10 @@ $translations = [
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="auction/" target="_blank">
+                    <a class="dropdown-item" href="https://kisan-bid.netlify.app/" target="_blank">
                         <i class="fas fa-gavel"></i>
                         <span>Agricultural Auctions</span>
+                        <i class="fas fa-external-link-alt ms-auto external-link-icon"></i>
                     </a>
                 </li>
             </ul>
