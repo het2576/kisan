@@ -1,1 +1,33 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# PHP files
 /vendor/
+composer.lock
+
+# Environment files
+.env
+
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+/temp/
+/tmp/
+
+# Image uploads
+
+# Database dumps
+*.sql.gz
+*.dump
+
+# Ignore uploaded files
+uploads/auction_items/*
+!uploads/auction_items/.gitkeep

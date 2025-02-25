@@ -37,7 +37,8 @@ $translations = [
         'sort_by' => 'Sort by',
         'filter' => 'Filter',
         'export' => 'Export to CSV',
-        'print' => 'Print Inventory'
+        'print' => 'Print Inventory',
+        'dashboard' => 'Dashboard'
     ],
     'hi' => [
         'inventory_management' => 'इन्वेंटरी प्रबंधन',
@@ -57,7 +58,8 @@ $translations = [
         'item_deleted' => 'वस्तु सफलतापूर्वक हटा दी गई!',
         'error_deleting' => 'वस्तु हटाने में त्रुटि: ',
         'days_remaining' => 'शेष दिन: ',
-        'expired_on' => 'समाप्ति तिथि: '
+        'expired_on' => 'समाप्ति तिथि: ',
+        'dashboard' => 'डैशबोर्ड'
     ],
     'gu' => [
         'inventory_management' => 'ઇન્વેન્ટરી મેનેજમેન્ટ',
@@ -77,7 +79,8 @@ $translations = [
         'item_deleted' => 'વસ્તુ સફળતાપૂર્વક દૂર કરવામાં આવી!',
         'error_deleting' => 'વસ્તુ દૂર કરવામાં ભૂલ: ',
         'days_remaining' => 'બાકી રહેલા દિવસો: ',
-        'expired_on' => 'સમાપ્તિ તારીખ: '
+        'expired_on' => 'સમાપ્તિ તારીખ: ',
+        'dashboard' => 'ડેશબોર્ડ'
     ]
 ];
 
@@ -328,6 +331,13 @@ $result = $stmt->get_result();
     </style>
 </head>
 <body>
+    <!-- Back to Dashboard Button -->
+    <div class="container mt-3">
+        <a href="dashboard.php" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i><?php echo getTranslation($lang, 'dashboard'); ?>
+        </a>
+    </div>
+
     <div class="container py-5">
         <h1 class="text-center mb-5" style="color: #0d6efd;"><?php echo getTranslation($lang, 'inventory_management'); ?></h1>
         

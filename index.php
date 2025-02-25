@@ -127,12 +127,16 @@
             AI-Powered Crop Recommendations
         </div>
         <div class="feature-text">
-            <i class="fas fa-vr-cardboard"></i>
-            Advanced AR Field Mapping
-        </div>
-        <div class="feature-text">
             <i class="fas fa-chart-line"></i>
             Real-time Market Insights
+        </div>
+        <div class="feature-text">
+            <i class="fas fa-box"></i>
+            Inventory Tracking System
+        </div>
+        <div class="feature-text">
+            <i class="fas fa-store"></i>
+            Farmer's Marketplace
         </div>
 
         <a href="register.php" class="start-button">Begin Your Journey</a>

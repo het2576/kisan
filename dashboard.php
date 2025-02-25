@@ -1,16 +1,13 @@
 <?php
-session_start(); // Start the session
+require_once __DIR__ . '/includes/init.php';
 
-// Redirect to login if the user is not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// Get user role from session
+$userRole = getCurrentUserRole() ?? 'buyer';
 
 // Set language based on selection or session
 if (isset($_GET['lang'])) {
     $lang = $_GET['lang'];
-    $_SESSION['lang'] = $lang; // Store language in session
+    $_SESSION['lang'] = $lang;
 } else if (isset($_SESSION['lang'])) {
     $lang = $_SESSION['lang'];
 } else {
@@ -35,9 +32,6 @@ $translations = [
         'cost_per_acre' => 'Cost per Acre (₹)',
         'yield_per_acre' => 'Yield per Acre (kg)',
         'dashboard' => 'Dashboard',
-        'team' => 'Team',
-        'projects' => 'Projects',
-        'calendar' => 'Calendar',
         'smart_companion' => 'Your Smart Farming Companion',
         'hero_subtitle' => 'Access modern farming tools, market insights, and AI-powered recommendations all in one place',
         'about_title' => 'About Kisan.ai',
@@ -60,7 +54,11 @@ $translations = [
         'weather_forecast_desc' => 'Stay ahead with accurate weather predictions and plan your farming activities accordingly.',
         'news' => 'Agricultural News',
         'disease_detection' => 'Crop Disease Detection',
-        'disease_detection_desc' => 'Upload crop images to detect diseases and get treatment recommendations'
+        'disease_detection_desc' => 'Upload crop images to detect diseases and get treatment recommendations',
+        'marketplace'      => 'Marketplace',
+        'edit_profile' => 'Edit Profile',
+        'view_profile' => 'View Profile',
+        'profile_settings' => 'Profile Settings'
     ],
     'hi' => [
         'welcome' => 'स्वागत है',
@@ -78,9 +76,6 @@ $translations = [
         'cost_per_acre' => 'प्रति एकड़ लागत (₹)',
         'yield_per_acre' => 'प्रति एकड़ उपज (किग्रा)',
         'dashboard' => 'डैशबोर्ड',
-        'team' => 'टीम',
-        'projects' => 'परियोजनाएं',
-        'calendar' => 'कैलेंडर',
         'smart_companion' => 'आपका स्मार्ट कृषि साथी',
         'hero_subtitle' => 'एक ही स्थान पर आधुनिक कृषि उपकरण, बाजार अंतर्दृष्टि और एआई-संचालित सिफारिशें प्राप्त करें',
         'about_title' => 'किसान.एआई के बारे में',
@@ -103,7 +98,11 @@ $translations = [
         'weather_forecast_desc' => 'सटीक मौसम भविष्यवाणियों के साथ आगे रहें और तदनुसार अपनी कृषि गतिविधियों की योजना बनाएं।',
         'news' => 'कृषि समाचार',
         'disease_detection' => 'फसल रोग पहचान',
-        'disease_detection_desc' => 'रोगों का पता लगाने और उपचार की सिफारिशें प्राप्त करने के लिए फसल की छवियां अपलोड करें'
+        'disease_detection_desc' => 'रोगों का पता लगाने और उपचार की सिफारिशें प्राप्त करने के लिए फसल की छवियां अपलोड करें',
+        'marketplace'      => 'मार्केटप्लेस',
+        'edit_profile' => 'प्रोफ़ाइल संपादित करें',
+        'view_profile' => 'प्रोफ़ाइल देखें',
+        'profile_settings' => 'प्रोफ़ाइल सेटिंग्स'
     ],
     'gu' => [
         'welcome' => 'સ્વાગત છે',
@@ -121,9 +120,6 @@ $translations = [
         'cost_per_acre' => 'એકર દીઠ ખર્ચ (₹)',
         'yield_per_acre' => 'એકર દીઠ ઉપજ (કિગ્રા)',
         'dashboard' => 'ડેશબોર્ડ',
-        'team' => 'ટીમ',
-        'projects' => 'પ્રોજેક્ટ્સ',
-        'calendar' => 'કેલેન્ડર',
         'smart_companion' => 'તમારો સ્માર્ટ ખેતી સાથી',
         'hero_subtitle' => 'એક જ સ્થળે આધુનિક ખેતી સાધનો, બજાર માહિતી અને AI-આધારિત ભલામણો મેળવો',
         'about_title' => 'કિસાન.એઆઈ વિશે',
@@ -146,7 +142,11 @@ $translations = [
         'weather_forecast_desc' => 'ચોક્કસ હવામાન આગાહીઓ સાથે આગળ રહો અને તે મુજબ તમારી ખેતી પ્રવૃત્તિઓનું આયોજન કરો.',
         'news' => 'કૃષિ સમાચાર',
         'disease_detection' => 'પાક રોગ શોધ',
-        'disease_detection_desc' => 'રોગોનું નિદાન કરવા અને સારવારની ભલામણો મેળવવા માટે પાકની છબીઓ અપલોડ કરો'
+        'disease_detection_desc' => 'રોગોનું નિદાન કરવા અને સારવારની ભલામણો મેળવવા માટે પાકની છબીઓ અપલોડ કરો',
+        'marketplace'      => 'માર્કેટપ્લેસ',
+        'edit_profile' => 'પ્રોફાઇલ સંપાદિત કરો',
+        'view_profile' => 'પ્રોફાઇલ જુઓ',
+        'profile_settings' => 'પ્રોફાઇલ સેટિંગ્સ'
     ]
 ];
 ?>
@@ -160,7 +160,20 @@ $translations = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2F855A;
+            --secondary-color: #276749;
+            --accent-color: #E6FFFA;
+            --text-color: #2D3748;
+            --border-color: #E2E8F0;
+            --error-color: #E53E3E;
+        }
+
         body {
             background: #f8f9fa;
             color: #2c3e50;
@@ -288,11 +301,11 @@ $translations = [
             top: 0;
             right: 0;
             left: 280px;
-            height: 60px;
+            height: 70px;
             background: white;
-            padding: 0.8rem 1.5rem;
+            padding: 0.8rem 2rem;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             z-index: 900;
@@ -479,45 +492,93 @@ $translations = [
             text-align: center;
         }
 
-        /* Dropdown styles */
-        .dropdown-menu {
-            background: #1a1c23;
-            border: none;
-            border-radius: 6px;
-            margin-top: 0;
-            padding: 0.5rem 0;
-            transform-origin: top;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            transform: scaleY(0);
-            opacity: 0;
-            width: 100%;
-            position: static;
-        }
-
-        .dropdown-menu.show {
-            transform: scaleY(1);
-            opacity: 1;
-        }
-
-        .dropdown-item {
+        /* Dropdown styles to match other links */
+        .nav-links .dropdown-toggle {
             color: rgba(255,255,255,0.8);
             padding: 0.6rem 0.8rem;
-            font-size: 0.8rem;
+            margin: 0.1rem 0;
+            border-radius: 6px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             text-decoration: none;
+            font-weight: 500;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            width: 100%;
         }
 
-        .dropdown-item i {
-            margin-right: 8px;
-            width: 16px;
-        }
-
-        .dropdown-item:hover {
+        .nav-links .dropdown-toggle:hover {
             background: rgba(255,255,255,0.1);
             color: #ffffff;
             transform: translateX(5px);
+        }
+
+        .nav-links .dropdown-toggle i:first-child {
+            margin-right: 8px;
+            width: 16px;
+            font-size: 0.9rem;
+        }
+
+        .nav-links .dropdown-toggle i.fa-chevron-down {
+            margin-left: auto;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links .dropdown.show .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown menu styles */
+        .nav-links .dropdown-menu {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0.1rem 0;
+            width: 100%;
+        }
+
+        .nav-links .dropdown-item {
+            color: rgba(255,255,255,0.8);
+            padding: 0.6rem 0.8rem 0.6rem 2.3rem;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-weight: 500;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links .dropdown-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            transform: translateX(5px);
+        }
+
+        .nav-links .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+            font-size: 0.9rem;
+        }
+
+        .nav-links .dropdown-item.active {
+            background: #3182ce;
+            color: #ffffff;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .nav-links .dropdown-toggle,
+            .nav-links .dropdown-item {
+                padding-left: 1.2rem;
+            }
+            
+            .nav-links .dropdown-item {
+                padding-left: 2.7rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -538,6 +599,7 @@ $translations = [
 
             .main-header {
                 left: 0;
+                padding: 0.8rem 1rem;
             }
 
             .main-content {
@@ -562,7 +624,428 @@ $translations = [
                 opacity: 1;
             }
         }
+
+        @media (min-width: 1200px) {
+            .main-header {
+                padding: 0.8rem 3rem;
+            }
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+            position: relative;
+        }
+
+        .notification-wrapper {
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .notification-bell:hover {
+            transform: scale(1.1);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 380px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            border: 1px solid var(--border-color);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+        }
+
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .mark-all-read:hover {
+            background: var(--accent-color);
+        }
+
+        .notification-list {
+            padding: 0.5rem;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            background: white;
+        }
+
+        .notification-item:hover {
+            background: var(--accent-color);
+            border-color: var(--border-color);
+        }
+
+        .notification-item.unread {
+            background: var(--accent-color);
+        }
+
+        .notification-item .title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .notification-item .message {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .notification-item .time {
+            font-size: 0.75rem;
+            color: var(--text-color);
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+
+        .notification-item i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .notification-dropdown {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                width: auto;
+                margin: 0 10px;
+                max-height: calc(100vh - 80px);
+            }
+
+            .header-right {
+                gap: 0.8rem;
+            }
+
+            .lang-selector {
+                display: flex;
+                gap: 0.3rem;
+            }
+
+            .lang-selector .btn {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .user-profile span {
+                display: none;
+            }
+        }
+
+        /* Profile Dropdown Styles */
+        .profile-dropdown {
+            min-width: 280px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        .user-profile {
+            position: relative;
+        }
+
+        .profile-info {
+            background: #f8fafb;
+            padding: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+
+        .info-item i {
+            width: 24px;
+            text-align: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            color: #4CAF50;
+        }
+
+        .info-item span {
+            font-size: 0.9rem;
+            color: #2d3748;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .dropdown-item {
+            padding: 12px 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: #f8fafb;
+            color: #4CAF50;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .profile-dropdown {
+                position: fixed !important;
+                top: 60px !important;
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+                transform: none !important;
+                margin: 0 !important;
+                max-height: calc(100vh - 70px);
+                overflow-y: auto;
+                border-radius: 8px !important;
+            }
+
+            .user-profile {
+                position: static !important;
+            }
+
+            .dropdown-menu.show {
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+            }
+
+            .profile-header {
+                padding: 15px !important;
+            }
+
+            .info-item {
+                padding: 10px 0;
+            }
+
+            .info-item span {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            /* Add backdrop overlay */
+            .dropdown-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9998;
+            }
+
+            /* Ensure header stays above dropdown */
+            .main-header {
+                position: relative;
+                z-index: 10000;
+            }
+        }
+
+        /* Small screen styles */
+        @media (max-width: 576px) {
+            .profile-dropdown {
+                top: 50px !important;
+            }
+
+            .profile-info {
+                padding: 12px;
+            }
+
+            .info-item {
+                padding: 8px 0;
+            }
+
+            .dropdown-item {
+                padding: 10px 12px;
+            }
+        }
+
+        /* Sidebar dropdown styles */
+        .nav-links .dropdown {
+            width: 100%;
+        }
+
+        .nav-links .dropdown-menu {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            position: static !important;
+            transform: none !important;
+            box-shadow: none;
+            padding-left: 20px;
+        }
+
+        .nav-links .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 20px;
+            color: #f1f5f9;
+            text-decoration: none;
+            gap: 12px;
+        }
+
+        .nav-links .dropdown-toggle:hover,
+        .nav-links .dropdown-toggle:focus {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-links .dropdown-toggle i:first-child {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-links .dropdown-toggle i.fa-chevron-down {
+            margin-left: auto;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links .dropdown.show .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .nav-links .dropdown-item {
+            padding: 10px 15px 10px 52px;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: inherit;
+        }
+
+        .nav-links .dropdown-item:hover,
+        .nav-links .dropdown-item:focus {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Active state styles */
+        .nav-links .dropdown-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-links .dropdown-toggle.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .nav-links .dropdown-toggle {
+                padding: 12px 25px;
+            }
+            
+            .nav-links .dropdown-item {
+                padding: 10px 15px 10px 57px;
+            }
+        }
+
+        .external-link-icon {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .nav-link:hover .external-link-icon {
+            opacity: 1;
+        }
     </style>
+    <script>
+    // Check for notifications on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkNotifications();
+    });
+
+    // Function to check notifications
+    function checkNotifications() {
+        fetch('check_notifications.php')
+            .then(response => {
+                // Notification check complete
+                console.log('Notifications checked');
+            });
+    }
+    </script>
 </head>
 <body>
     <!-- Mobile Menu Overlay -->
@@ -570,51 +1053,178 @@ $translations = [
 
     <!-- Sidebar -->
     <nav class="sidebar">
-        <div class="sidebar-logo">
-            <h3>Kisan.ai</h3>
+    <div class="sidebar-logo">
+        <h3>Kisan.ai</h3>
+    </div>
+    <div class="nav-links">
+        <!-- Dashboard -->
+        <a href="dashboard.php" class="nav-link <?php echo ($page == 'dashboard') ? 'active' : ''; ?>">
+            <i class="fas fa-home"></i>
+            <span><?php echo $translations[$lang]['dashboard']; ?></span>
+        </a>
+
+        <!-- Marketplace Dropdown -->
+        <div class="dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-store"></i>
+                <span><?php echo $translations[$lang]['marketplace']; ?></span>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="marketplace.php">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Buy/Sell Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="https://kisan-bid.netlify.app/" target="_blank">
+                        <i class="fas fa-gavel"></i>
+                        <span>Agricultural Auctions</span>
+                        <i class="fas fa-external-link-alt ms-auto external-link-icon"></i>
+                    </a>
+                </li>
+            </ul>
         </div>
-        <div class="nav-links">
-            <a href="#" class="nav-link active"><i class="fas fa-home"></i><?php echo $translations[$lang]['dashboard']; ?></a>
-            
-            <!-- Tools Dropdown -->
-            <div class="dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?>
-                    <i class="fas fa-chevron-down"></i>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="inventory.php"><i class="fas fa-box"></i><?php echo $translations[$lang]['inventory']; ?></a></li>
-                    <li><a class="dropdown-item" href="tools.php"><i class="fas fa-tools"></i><?php echo $translations[$lang]['tools']; ?></a></li>
-                    <li><a class="dropdown-item" href="crop_profit_calc.php"><i class="fas fa-calculator"></i><?php echo isset($translations[$lang]['profit_calc']) ? $translations[$lang]['profit_calc'] : 'Profit Calculator'; ?></a></li>
-                </ul>
-            </div>
-            
-            <a href="market.php" class="nav-link"><i class="fas fa-chart-line"></i><?php echo $translations[$lang]['market']; ?></a>
-            <a href="weather.php" class="nav-link"><i class="fas fa-cloud-sun"></i><?php echo $translations[$lang]['weather']; ?></a>
-            <a href="ai_assistant.php" class="nav-link"><i class="fas fa-robot"></i><?php echo $translations[$lang]['ai']; ?></a>
-            <a href="agri_news.php" class="nav-link"><i class="fas fa-newspaper"></i><?php echo $translations[$lang]['news']; ?></a>
-            <a href="crop_disease_detection.php" class="nav-link"><i class="fas fa-microscope"></i><?php echo $translations[$lang]['disease_detection']; ?></a>
+
+        <!-- Tools Dropdown -->
+        <div class="dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-tools"></i>
+                <span><?php echo $translations[$lang]['tools']; ?></span>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="inventory.php">
+                        <i class="fas fa-box"></i>
+                        <span><?php echo $translations[$lang]['inventory']; ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="crop_profit_calc.php">
+                        <i class="fas fa-calculator"></i>
+                        <span><?php echo $translations[$lang]['profit_calc']; ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="crop_disease_detection.php">
+                        <i class="fas fa-microscope"></i>
+                        <span><?php echo $translations[$lang]['disease_detection']; ?></span>
+                    </a>
+                </li>
+            </ul>
         </div>
-        <div class="logout-container">
-            <a href="logout.php" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i><?php echo $translations[$lang]['logout']; ?></a>
-        </div>
-    </nav>
+
+        <!-- Market Insights -->
+        <a href="market.php" class="nav-link <?php echo ($page == 'market') ? 'active' : ''; ?>">
+            <i class="fas fa-chart-line"></i>
+            <span><?php echo $translations[$lang]['market']; ?></span>
+        </a>
+
+        <!-- Weather -->
+        <a href="weather.php" class="nav-link <?php echo ($page == 'weather') ? 'active' : ''; ?>">
+            <i class="fas fa-cloud-sun"></i>
+            <span><?php echo $translations[$lang]['weather']; ?></span>
+        </a>
+
+        <!-- AI Assistant -->
+        <a href="ai_assistant.php" class="nav-link <?php echo ($page == 'ai') ? 'active' : ''; ?>">
+            <i class="fas fa-robot"></i>
+            <span><?php echo $translations[$lang]['ai']; ?></span>
+        </a>
+
+        <!-- News -->
+        <a href="agri_news.php" class="nav-link <?php echo ($page == 'news') ? 'active' : ''; ?>">
+            <i class="fas fa-newspaper"></i>
+            <span><?php echo $translations[$lang]['news']; ?></span>
+        </a>
+    </div>
+    <div class="logout-container">
+        <a href="logout.php" class="nav-link logout-link">
+            <i class="fas fa-sign-out-alt"></i><?php echo $translations[$lang]['logout']; ?>
+        </a>
+    </div>
+</nav>
 
     <!-- Header -->
     <header class="main-header">
         <div class="hamburger-menu">
             <i class="fas fa-bars"></i>
         </div>
-        <div class="lang-selector">
-            <a href="?lang=en" class="btn btn-outline-primary btn-sm">English</a>
-            <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
-            <a href="?lang=gu" class="btn btn-outline-primary btn-sm">ગુજરાતી</a>
-        </div>
-        <div class="user-profile">
-            <div class="user-avatar">
-                <?php echo substr($_SESSION['name'], 0, 1); ?>
+        <div class="header-right">
+            <div class="notification-wrapper">
+                <div class="notification-bell" id="notificationBell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount"></span>
+                </div>
+                
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h6>Notifications</h6>
+                        <button class="mark-all-read">Mark all as read</button>
+                    </div>
+                    <div class="notification-list" id="notificationList">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
             </div>
-            <span><?php echo $_SESSION['name']; ?></span>
+            <div class="lang-selector">
+                <a href="?lang=en" class="btn btn-outline-primary btn-sm">English</a>
+                <a href="?lang=hi" class="btn btn-outline-primary btn-sm">हिंदी</a>
+                <a href="?lang=gu" class="btn btn-outline-primary btn-sm">ગુજરાતી</a>
+            </div>
+            <div class="user-profile dropdown">
+                <div class="d-flex align-items-center" role="button" data-bs-toggle="dropdown">
+                    <div class="user-avatar">
+                        <?php echo substr($_SESSION['name'], 0, 1); ?>
+                    </div>
+                    <span class="ms-2 d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </div>
+                
+                <div class="dropdown-menu profile-dropdown">
+                    <div class="profile-header p-3 border-bottom">
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar-large">
+                                <?php echo substr($_SESSION['name'], 0, 1); ?>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 text-dark"><?php echo htmlspecialchars($_SESSION['name']); ?></h6>
+                                <small class="text-muted"><?php echo htmlspecialchars($_SESSION['email']); ?></small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-info border-bottom">
+                        <?php if (!empty($_SESSION['phone'])): ?>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <span><?php echo htmlspecialchars($_SESSION['phone']); ?></span>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($_SESSION['region'])): ?>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><?php echo htmlspecialchars($_SESSION['region']); ?></span>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($_SESSION['farming_type'])): ?>
+                        <div class="info-item">
+                            <i class="fas fa-seedling"></i>
+                            <span><?php echo htmlspecialchars($_SESSION['farming_type']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <a class="dropdown-item" href="profile.php">
+                        <i class="fas fa-user"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -729,6 +1339,325 @@ $translations = [
             document.querySelector('.sidebar').classList.remove('active');
             document.querySelector('.mobile-menu-overlay').classList.remove('active');
         });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('notificationDropdown');
+        const notificationList = document.getElementById('notificationList');
+        const countBadge = document.getElementById('notificationCount');
+        const markAllReadBtn = document.querySelector('.mark-all-read');
+        let isDropdownOpen = false;
+
+        // Function to handle fetch errors
+        async function handleFetchResponse(response) {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+            return await response.text();
+        }
+
+        // Function to update notification count
+        async function updateNotificationCount() {
+            try {
+                const response = await fetch('notifications.php?action=get_count');
+                const data = await handleFetchResponse(response);
+                
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+                
+                const count = parseInt(data.count) || 0;
+                countBadge.textContent = count;
+                countBadge.style.display = count > 0 ? 'flex' : 'none';
+                
+                if (count > 0) {
+                    bell.classList.add('animate__animated', 'animate__headShake');
+                }
+            } catch (error) {
+                console.error('Error updating count:', error);
+                countBadge.style.display = 'none';
+            }
+        }
+
+        // Function to load notifications
+        async function loadNotifications() {
+            try {
+                notificationList.innerHTML = '<div class="notification-item"><div class="message">Loading...</div></div>';
+                
+                const response = await fetch('notifications.php?action=get_notifications');
+                const data = await handleFetchResponse(response);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const notifications = data.notifications || [];
+                const translations = data.translations || {
+                    no_notifications: 'No notifications',
+                    mark_all_read: 'Mark all as read',
+                    notifications: 'Notifications'
+                };
+
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-item">
+                            <div class="message">${translations.no_notifications}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                notificationList.innerHTML = notifications.map(notification => `
+                    <div class="notification-item ${!notification.is_read ? 'unread' : ''}" 
+                         data-id="${notification.id}">
+                        <i class="fas ${notification.icon}"></i>
+                        <div class="title">${notification.title}</div>
+                        <div class="message">${notification.message}</div>
+                        <div class="time">${timeAgo(notification.created_at)}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                notificationList.innerHTML = `
+                    <div class="notification-item">
+                        <div class="message">Error loading notifications</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to format time
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        // Toggle dropdown
+        bell.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isDropdownOpen = !isDropdownOpen;
+            dropdown.style.display = isDropdownOpen ? 'block' : 'none';
+            
+            if (isDropdownOpen) {
+                await loadNotifications();
+                bell.classList.remove('animate__animated', 'animate__headShake');
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+                isDropdownOpen = false;
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Mark notification as read
+        notificationList.addEventListener('click', async (e) => {
+            const item = e.target.closest('.notification-item');
+            if (item && item.classList.contains('unread')) {
+                try {
+                    const notificationId = item.dataset.id;
+                    const formData = new FormData();
+                    formData.append('notification_id', notificationId);
+
+                    const response = await fetch('notifications.php?action=mark_read', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await handleFetchResponse(response);
+                    
+                    if (data.success) {
+                        item.classList.remove('unread');
+                        await updateNotificationCount();
+                    }
+                } catch (error) {
+                    console.error('Error marking as read:', error);
+                }
+            }
+        });
+
+        // Mark all as read
+        markAllReadBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            try {
+                const response = await fetch('notifications.php?action=mark_all_read');
+                const data = await handleFetchResponse(response);
+                
+                if (data.success) {
+                    document.querySelectorAll('.notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                    });
+                    await updateNotificationCount();
+                }
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+            }
+        });
+
+        // Initial check for notifications
+        async function checkNotifications() {
+            try {
+                const response = await fetch('check_notifications.php');
+                const data = await handleFetchResponse(response);
+                
+                if (data.success) {
+                    await updateNotificationCount();
+                    if (isDropdownOpen) {
+                        await loadNotifications();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking notifications:', error);
+            }
+        }
+
+        // Initial load
+        updateNotificationCount();
+        checkNotifications();
+        
+        // Check for new notifications every 30 seconds
+        setInterval(checkNotifications, 30000);
+    });
+    </script>
+
+    <!-- Add this before closing body tag -->
+    <script>
+    $(document).ready(function() {
+        // Initialize tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+        // Handle Edit Button Click
+        $('.edit-product').click(function() {
+            var productId = $(this).data('id');
+            $('#product_id').val(productId);
+            $('.modal-title').text('Edit Product Listing');
+            
+            // Fetch product data
+            $.get('get_product.php', {product_id: productId}, function(product) {
+                // Populate form fields
+                $('[name="name"]').val(product.name);
+                $('[name="category_id"]').val(product.category_id);
+                $('[name="description"]').val(product.description);
+                $('[name="price_per_kg"]').val(product.price_per_kg);
+                $('[name="quantity_available"]').val(product.quantity_available);
+                $('[name="unit"]').val(product.unit);
+                $('[name="harvest_date"]').val(product.harvest_date);
+                $('[name="expiry_date"]').val(product.expiry_date);
+                $('[name="farming_method"]').val(product.farming_method);
+                $('[name="location"]').val(product.location);
+                $('[name="is_organic"]').prop('checked', product.is_organic == 1);
+                $('[name="status"]').val(product.status);
+                $('[name="min_order_quantity"]').val(product.min_order_quantity);
+                
+                // Show existing images if any
+                if (product.images) {
+                    // Display existing images logic here
+                }
+                
+                $('#addProductModal').modal('show');
+            });
+        });
+
+        // Handle Delete Button Click
+        $('.delete-product').click(function() {
+            if(confirm('Are you sure you want to delete this product listing?')) {
+                var productId = $(this).data('id');
+                $.post('delete_product.php', {product_id: productId}, function(response) {
+                    if(response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting product');
+                    }
+                });
+            }
+        });
+
+        // Handle Promote Button Click
+        $('.promote-product').click(function() {
+            var productId = $(this).data('id');
+            // Add promotion logic here
+            alert('Promotion feature coming soon!');
+        });
+
+        // Reset form when modal is closed
+        $('#addProductModal').on('hidden.bs.modal', function () {
+            $('#productForm')[0].reset();
+            $('#product_id').val('');
+            $('.modal-title').text('List New Product');
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userProfile = document.querySelector('.user-profile');
+        const dropdown = document.querySelector('.profile-dropdown');
+        
+        // Custom dropdown handler for mobile
+        if (window.innerWidth <= 768) {
+            userProfile.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Toggle dropdown
+                dropdown.classList.toggle('show');
+                
+                // Handle backdrop
+                if (dropdown.classList.contains('show')) {
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'dropdown-backdrop';
+                    document.body.appendChild(backdrop);
+                    
+                    backdrop.addEventListener('click', function() {
+                        dropdown.classList.remove('show');
+                        backdrop.remove();
+                    });
+                } else {
+                    const backdrop = document.querySelector('.dropdown-backdrop');
+                    if (backdrop) backdrop.remove();
+                }
+            });
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !userProfile.contains(e.target)) {
+                dropdown.classList.remove('show');
+                const backdrop = document.querySelector('.dropdown-backdrop');
+                if (backdrop) backdrop.remove();
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const backdrop = document.querySelector('.dropdown-backdrop');
+                if (backdrop) backdrop.remove();
+            }
+        });
+    });
     </script>
 </body>
 </html>

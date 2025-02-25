@@ -338,6 +338,20 @@ $l = $labels[$currentLang];
     </style>
 </head>
 <body class="p-4 md:p-8">
+    <!-- Add Back to Dashboard Button -->
+    <div class="max-w-5xl mx-auto mb-8">
+        <a href="dashboard.php" class="inline-flex items-center px-4 py-2 bg-white text-green-600 rounded-lg shadow hover:bg-green-50 transition-colors">
+            <i class="bi bi-arrow-left me-2"></i>
+            <?php 
+            $backText = [
+                'en' => 'Back to Dashboard',
+                'hi' => 'डैशबोर्ड पर वापस जाएं',
+                'gu' => 'ડેશબોર્ડ પર પાછા જાઓ'
+            ];
+            echo $backText[$currentLang];
+            ?>
+        </a>
+    </div>
     <div class="max-w-5xl mx-auto">
         <div class="glass-container p-8 md:p-12">
             <div class="flex justify-end mb-4">
